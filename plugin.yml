@@ -1,0 +1,7 @@
+name: Olympia-Kitpvp
+version: 1.0.0
+api: 5.0.0
+main: Olympia\Kitpvp\Core
+author: RemBog
+depend:
+  - RankSystem

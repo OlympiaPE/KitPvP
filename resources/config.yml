@@ -1,0 +1,486 @@
+vote-key: "ansLgUIsaVHjV3ssgcO1jSnBTrc4wt8WsS"
+
+webhooks:
+  report: "https://discord.com/api/webhooks/1215590186793173022/VvcXRUsVcNzqx36YatWuZChD-pjUU47j_Wa4WNkcP2UypWGoR5tRqJCcaFnuicI2aVYy"
+  logs-commands: "https://discord.com/api/webhooks/1215590327663075340/tc3S7qd97LK5rmcLJJgWrBQesznI0pUrCvj2VvSqI7-08_eJbCmk9QGJgwYrOr0AGd8U"
+  logs-sanctions: "https://discord.com/api/webhooks/1215590269857177600/rjMxECpQBjc0cnDfgrQqFDAvL_6Jt0jo0viD_EO2mdXPH6D7GkSXkvGQMphFj-xaTpr8"
+
+spawn:
+  world: kitpvp
+  x: 0
+  y: 135
+  z: 0
+  # If player's y coordinate is above safe-height, he cannot be damaged by other players.
+  safe-height: 128
+
+lobby:
+  ip: "play.olympiape.fr"
+  port: 19132
+
+servers:
+  Lobby:
+    ip: "play.olympiape.fr"
+    port: 19132
+  KitMap:
+    ip: "play.olympiape.fr"
+    port: 19133
+
+duels-kb:
+  nodebuff:
+    kb: 0.4
+    vertical-kb-limit: 0.4
+    attackcooldown: 10
+  sumo:
+    kb: 0.7
+    vertical-kb-limit: 0.4
+    attackcooldown: 10
+  archer:
+    kb: 0.4
+    vertical-kb-limit: 0.4
+    attackcooldown: 10
+  invaded:
+    kb: 0.4
+    vertical-kb-limit: 0.4
+    attackcooldown: 10
+  kit-joueur:
+    kb: 0.4
+    vertical-kb-limit: 0.4
+    attackcooldown: 10
+  kit-anges:
+    kb: 0.4
+    vertical-kb-limit: 0.4
+    attackcooldown: 10
+  kit-archanges:
+    kb: 0.4
+    vertical-kb-limit: 0.4
+    attackcooldown: 10
+  kit-poseidon:
+    kb: 0.4
+    vertical-kb-limit: 0.4
+    attackcooldown: 10
+  kit-zeus:
+    kb: 0.4
+    vertical-kb-limit: 0.4
+    attackcooldown: 10
+
+duels-maps:
+  sumo:
+    sumo_1:
+      players-spawn:
+        1:
+          x: 256
+          y: 65
+          z: 253
+        2:
+          x: 256
+          y: 65
+          z: 259
+        spectator:
+          x: 256
+          y: 66
+          z: 256
+  basic:
+    arene_4:
+      players-spawn:
+        1:
+          x: 360
+          y: 102
+          z: 345
+        2:
+          x: 360
+          y: 102
+          z: 395
+        spectator:
+          x: 360
+          y: 102
+          z: 370
+
+tournament:
+  # In seconds
+  delay-before-starting: 40
+  min-players: 2
+  type:
+    nodebuff:
+      world: "world"
+      kb:
+        kb: 0.4
+        vertical-kb-limit: 0.4
+        attackcooldown: 10
+      spawn-positions:
+        player:
+          x: 255
+          y: 100
+          z: 255
+        fighter-one:
+          x: 255
+          y: 100
+          z: 255
+        fighter-two:
+          x: 255
+          y: 100
+          z: 255
+    sumo:
+      world: "tournoi_sumo"
+      kb:
+        kb: 0.4
+        vertical-kb-limit: 0.4
+        attackcooldown: 10
+      spawn-positions:
+        player:
+          x: 256
+          y: 67
+          z: 248
+        fighter-one:
+          x: 259
+          y: 65
+          z: 256
+        fighter-two:
+          x: 253
+          y: 65
+          z: 256
+    bracket:
+      world: "world"
+      kb:
+        kb: 0.4
+        vertical-kb-limit: 0.4
+        attackcooldown: 10
+      spawn-positions:
+        player:
+          x: 255
+          y: 100
+          z: 255
+        fighter-one:
+          x: 255
+          y: 100
+          z: 255
+        fighter-two:
+          x: 255
+          y: 100
+          z: 255
+
+arene:
+  global:
+    world: "arene_3"
+    spawn:
+      x: 0
+      y: 100
+      z: 0
+  pe:
+    world: "arene_1"
+    spawn:
+      x: 0
+      y: 100
+      z: 0
+
+commands-allowed-in-combat:
+  - "msg"
+  - "list"
+  - "stuff"
+
+# In ticks (20 ticks = 1 second)
+update-periods:
+  scoreboard: 20
+  combat: 20
+  cps: 1
+  expire-hdv-items: 1200
+  player-stats: 1200
+  broadcast-message: 1200
+  start-koth: 20
+
+no-fall-damage-zones:
+  spawn:
+    world: kitpvp
+    min-x: -130
+    min-y: 50
+    min-z: -130
+    max-x: 130
+    max-y: 70
+    max-z: 130
+
+redstone-bump:
+  length-power: 3.5
+  height-power: 1
+
+leaderboards:
+  money:
+    title: "§l§6Joueurs ayant le plus de money :§r"
+    line: "§6{top}) §f{player} §6avec §f{money}$"
+  kill:
+    title: "§l§6Joueurs ayant le plus de kill :§r"
+    line: "§6{top}) §f{player} §6avec §f{kill}"
+  death:
+    title: "§l§6Joueurs ayant le plus de mort :§r"
+    line: "§6{top}) §f{player} §6avec §f{death}"
+  killstreak:
+    title: "§l§6Joueurs ayant le plus gros killstreak :§r"
+    line: "§6{top}) §f{player} §6avec §f{killstreak}"
+  nerd:
+    title: "§l§6Joueurs ayant le plus de nerd :§r"
+    line: "§6{top}) §f{player} §6avec §f{nerd}"
+
+floating-text:
+  top-money:
+    x: 9
+    y: 136
+    z: -17
+  top-kill:
+    x: 16
+    y: 136
+    z: -12
+  top-death:
+    x: 15
+    y: 136
+    z: -6
+  top-killstreak:
+    x: 15
+    y: 136
+    z: 9
+  top-nerd:
+    x: 7
+    y: 136
+    z: 15
+
+koth:
+  world: kitpvp
+  capture-time: 240
+  zone:
+    min-x: 47
+    min-y: 73
+    min-z: 30
+    max-x: 53
+    max-y: 79
+    max-z: 39
+  floating-text:
+    x: 50
+    y: 75
+    z: 35
+  rewards:
+    key-event: 3
+    money: 3000
+
+chest-refill:
+  0:
+    level: 1
+    position:
+      x: -1
+      y: 57
+      z: -53
+  1:
+    level: 2
+    position:
+      x: -1
+      y: 57
+      z: 34
+
+broadcast-messages:
+  - "§6» §fVoici le lien de la boutique d'§6Olympia §fsi vous souhaitez procéder à un achat : §6https://olympiape.shop/"
+  - "§6» §fVous pouvez nous soutenir en votant pour §6Olympia §fsur le site de vote : §6https://minecraftpocket-servers.com/server/121923/"
+  - "§6» §fVous pouvez nous rejoindre sur §6Discord §favec cette invitation : §6https://discord.gg/olympiape"
+
+combat:
+  kb: 0.4
+  vertical-kb-limit: 0.4
+  attackcooldown: 10
+  fight-duration: 20
+
+cooldowns:
+  ender-pearl:
+    duration: 15
+    start-message: "§6» §fVous êtes désormais en cooldown pearl."
+    message: "§6» §fVous êtes encore en cooldown pearl pendant §6{time} seconde(s)§f."
+    end-message: "§6» §fVous n'êtes plus en cooldown pearl."
+  notch:
+    duration: 90
+    message: "§6» §fVous êtes encore en cooldown notch pendant §6{time} seconde(s)§f."
+
+bow:
+  spawn-arrow:
+    # The smaller the number, the lower the arrow.
+    y: 0.2
+    # The smaller the number, the further the arrow appears from the player.
+    distance: 0.8
+  arrow-power: 20
+
+rod:
+  hitbox: 0.25
+  throw-power: 0.4
+  damage: 0
+  # Disappears the hook if it has not reached its target and if the player is not holding the rod in his hand.
+  unequip-despawn: true
+
+messages:
+  player-encounters-error: "§6» §fImpossible de faire ceci pour l'instant, veuillez prévenir un staff."
+  not-allowed: "§6» §fVous n'avez pas la permission de faire ceci."
+  not-a-player: "§6» §fVous ne pouvez pas éxécuter cette commande depuis la console."
+  command-args-error: "§6» §fVeuillez faire §6{commandUsage}§f."
+  player-not-found: "§6» §fCe joueur n'existe pas."
+
+  no-room-in-inventory: "§6» §fVeuillez faire de la place dans votre inventaire."
+  invalid-amount: "§6» §fVeuillez mettre un montant valide."
+  inventory-must-be-empty: "§6» §fVotre inventaire doit être vide pour faire ceci."
+
+  first-join-general: "§6» §fSouhaitez la bienvenue à §6{player} §f!"
+  first-join-private: "§lBienvenue §6{player} §fsur Olympia, nous te souhaitons un bon jeu, nous t'invitons à rejoindre le §6discord §fet à lire le §6règlement§f."
+  join: "[§a+§r] §a{player}"
+  quit: "[§c-§f] §c{player}"
+
+  server-restart: "§6Redémarrage du serveur"
+
+  anti-spam: "§6» §fMerci de ne pas spam."
+
+  chat-locked: "§6» §fLe chat est verrouillé donc vous ne pouvez pas parler."
+  chat-lock-broadcast: "§6» §fLe chat est désormais verrouillé."
+  chat-unlock-broadcast: "§6» §fLe chat est désormais déverrouillé."
+  chat-lock: "§6» §fVous avez bien verrouillé le chat."
+  chat-unlock: "§6» §fVous avez bien déverrouillé le chat."
+
+  kill: "§6» §f{player} a été tué par {killer} !"
+  enter-in-combat: "§6» §fVous êtes désormais en combat. Ne vous déconnectez pas !"
+  no-longer-in-combat: "§6» §fVous n'êtes plus en combat."
+  command-in-combat: "§6» §fVous ne pouvez pas éxécuter cette commande en combat."
+
+  not-voted: "§6» §fVous n'avez pas voté pour le serveur."
+  vote: "§6» §f§lMerci d'avoir voté pour le serveur, vous venez de récupérer §61 Key vote§f."
+  general-vote: "§6» §fLe joueur §6{player} §fvient de voter sur le serveur !"
+
+  kit: "§6» §fVous avez bien obtenu votre kit !"
+  kit-in-cooldown: "§6» §fVous devez attendre §6{time} §favant de pouvoir obtenir ce kit."
+
+  not-mobile-player: "§6» §fVous n'êtes pas un joueur PE."
+  entering-arena: "§6» §fVous avez bien été téléporté dans l'§6arène §f!"
+
+  discord: "§6» §f§lVoici le Discord : §6https://discord.gg/olympiape"
+  list: "§6» §fIl y a actuellement {playersCount} joueur(s) connecté(s) : {playersNames}"
+  nightvision: "§6» §fVous venez d'obtenir un effet de vision nocturne !"
+  spawn: "§6» §fVous avez été téléporté au spawn."
+
+  hdv-max-slot: "§6» §fVous n'avez plus §6assez de place §fpour mettre en vente des items."
+  hdv-add-item: "§6» §fVous avez bien ajouté §6{item} §fpour le prix de §6{price}$§f."
+  hdv-item-sell: "§6» §fUn de vos §6items§f mis en vente à §6été acheté§f."
+  hdv-buy-item: "§6» §fVous venez d'acheter §6{item} §fpour §6{price}$§f."
+  hdv-item-unavailable: "§6» §fCet item n'est plus disponible."
+  hdv-remove-unsold-item: "§6» §fVous avez bien retiré §6{item} §fde vos invendus."
+  hdv-no-unsold-item: "§6» §fVous n'avez aucun §6items §finvendus."
+
+  shop-buy-item: "§6» §fVous avez bien acheté §6x{count} {item} §fpour §6{price}$§f."
+
+  clear-lag-warning: "§6[§fClearLag§6] §fsera effectué dans §61 §fminutes."
+  clear-lag-forced-warning: "§6[§fClearLag§6] §fsera effectué dans §610 §fsecondes."
+  clear-lag-force: "§6[§fClearLag§6] §fsera bien forcé dans §610 secondes§f."
+  clear-lag: "§6[§fClearLag§6] {amount} entitées §font été supprimées."
+
+  obtains-cosmetic: "§6» §fVous venez de débloquer le cosmétique §6{cosmetic} §f!"
+  equip-cosmetic: "§6» §fVous avez bien équipé ce cosmétique."
+  unequip-cosmetic: "§6» §fVous avez bien déséquipé ce cosmétique."
+  cosmetic-unavailable: "§6» §fVous ne possédez pas ce cosmétique."
+
+  receives-keys: "§6» §fVous venez de recevoir {quantity} de clé(s) {box}§r§f."
+  open-box: "§6» §fVous venez d'ouvrir une box, que la chance soit avec vous."
+  no-key: "§6» §fVous avez besoin d'une clé {key} §r§fpour ouvrir cette box."
+  spawn-box: "§6» §fVous avez bien fait apparaître une box {box}§r§f."
+  delete-box: "§6» §fVous avez bien fait diparaître les boxs {box}§r§f."
+
+  add-money: "§6» §fVous avez ajouté {money}$ à {player}."
+  remove-money: "§6» §fVous avez retiré {money}$ à {player}."
+  receive-money: "§6» §fVous avez reçu {money}$ de {player}."
+  lose-money: "§6» §fVous avez perdu {money}$."
+  pay-money: "§6» §fVous avez donné {money}$ à {player}."
+  see-money: "§6» §fLe joueur §6{player} §fpossède §6{money}$§f."
+  my-money: "§6» §fVous avez {money}$."
+  not-enough-money: "§6» §fVous n'avez pas assez de money."
+
+  enchant-incompatible-item: "§6» §fVous ne pouvez pas enchanter cette item avec cet enchantement."
+  enchant-success: "§6» §fVous avez bien enchanté cet item pour §6{price}$§f."
+
+  update-settings: "§6» §fParamètres mis à jours."
+
+  alias-title: "§6» §fAlias de §6{player}\n§fAdresse ip : §6{ip}\n§fComptes sur cette même adresse ip :"
+  alias-line: "§6- §f{pseudo} ({lastPlayed})"
+
+  ban-broadcast-message: "§c[Nouveau Ban]\n§7Joueur : §c{player}\n§7Staff : §c{staff}\n§7Raison : §c{reason}\n§7Jusqu'au §c{date}"
+  ban-invalid-duration: "§c[Ban] §7Veuillez entrer une durée valide."
+  ban-already-banned: "§c[Ban] §7Ce joueur est déjà banni."
+  ban-kick-screen: "§cVous avez été banni par §7{staff} §cpour §7{reason} §cjusqu'au §7{date}."
+  ban-screen: "§cVous êtes banni par §7{staff} §cpour §7{reason} §cjusqu'au §7{date}."
+
+  unban-not-banned: "§c[Ban] §7Ce joueur n'est pas banni."
+  unban: "§c[Ban] §7Le joueur §c{player} §7a été débanni."
+
+  freeze-staff: "§c[Freeze] §7Le joueur §c{player} §7a été freeze."
+  freeze-victim: "§c[Freeze] §7Vous avez été freeze par §c{staff}§7. Ne vous déconnectez pas ou vous serez banni !"
+  freeze-already-freeze: "§c[Freeze] §7Ce joueur est déjà freeze."
+
+  unfreeze-staff: "§c[Freeze] §7Le joueur §c{player} §7a été unfreeze."
+  unfreeze-victim: "§c[Freeze] §7Vous avez été unfreeze par §c{staff}§7."
+  unfreeze-not-freeze: "§c[Freeze] §7Ce joueur n'est pas freeze."
+
+  kick-broadcast-message: "§c[Nouveau Kick]\n§7Joueur : §c{player}\n§7Staff : §c{staff}\n§7Raison : §c{reason}"
+  kick-staff: "§c[Kick] §7Vous avez expulsé §c{player} §7pour §c{reason}."
+  kick-screen: "§cVous avez été expulsé par §7{staff} §cpour §7{reason}."
+
+  mute-broadcast-message: "§c[Nouveau Mute]\n§7Joueur : §c{player}\n§7Staff : §c{staff}\n§7Raison : §c{reason}\n§7Durée : §c{remainingTime}"
+  mute-victim: "§c[Mute] §7Vous avez été mute par §c{staff} §7pendant §c{remainingTime} §7pour §c{reason}§7."
+  mute-invalid-duration: "§c[Mute] §7Veuillez entrer une durée valide."
+  mute-already-mute: "§c[Mute] §7Ce joueur est déjà mute."
+  mute: "§c[Mute] §7Vous êtes encore mute §c{remainingTime}§7."
+
+  unmute-staff: "§c[Mute] §7Le joueur §c{player} §7a été unmute."
+  unmute-victim: "§c[Mute] §7Vous avez été unmute par §c{staff}§7."
+  unmute-not-mute: "§c[Mute] §7Ce joueur n'est pas mute."
+
+  rtp-no-player: "§6» §fAucun joueur n'a été trouvé."
+  rtp: "§6» §fVous avez été téléporté à §6{player}§f."
+
+  report-reason-empty: "§6» §fVeuillez mettre une raison."
+  report: "§6» §fLe joueur a bien été report§f."
+
+  npc-help: "§l§6Commandes NPC :§r§7\n  /npc create [name]\n  /npc delete [id]\n  /npc id\n  /npc addcmd [id] [command]"
+  npc-not-exist: "§6» §fIl n'y pas de npc ayant cet id."
+  npc-create: "§6» §fLe NPC {name} §r§fa été créé et son id est {id}."
+  npc-delete: "§6» §fLe NPC avec l'id {id} a été supprimé."
+  npc-id: "§6» §fCliquez sur un NPC pour obtenir son id."
+  npc-get-id: "§6» §fL'id de ce ncp est §6{id}§f."
+  npc-addcmd: "§6» §fUne commande a bien été ajoutée au npc ayant l'id {id}."
+
+  tournament-host-in-cooldown: "§6» §fVous devez attendre §6{time} §favant de pouvoir créer un tournoi."
+  tournament-host-create: "§6» §fVous avez bien créé un tournoi §6{type}§f."
+  tournament-error-already-tournament: "§6» §fIl y a déjà un tournoi en cours."
+  tournament-create: "§6» §fUn tournoi §6{type} §fa été créé par §6{hoster}§f. Faites §6/event §fpour le rejoindre."
+  tournament-join-error: "§6» §fImpossible de rejoindre le tournoi."
+  tournament-join-player: "§6» §fVous avez bien rejoint le tournoi."
+  tournament-join: "§6» §f{player} a rejoint le tournoi."
+  tournament-leave-player: "§6» §fVous avez bien quitté le tournoi."
+  tournament-leave: "§6» §f{player} a quitté le tournoi."
+  tournament-start-in: "§6» §fLe tournoi commence dans §6{time}§f."
+  tournament-not-enough-players: "§6» §fIl n'y a pas suffisamment de joueurs."
+  tournament-player-execute-command: "§6» §fVous ne pouvez pas éxécuter de commandes dans un tournoi."
+  tournament-fight-ended: "§6» {winner} §fa éliminé §6{loser} §f!"
+  tournament-ended: "§6» §fFélicitations à §6{winner} §fqui remporte le tournoi et la §6Clé Event §f!"
+
+  duel-with-yourself: "§6» §fVous ne pouvez pas faire de duel contre vous-même."
+  duel-player-too-high-mise: "§6» §fVous n'avez pas assez d'argent pour pouvoir payer la mise."
+  duel-target-too-high-mise: "§6» §fVotre adversaire n'a pas assez d'argent pour pouvoir payer la mise."
+  duel-player-create: "§6» §fVous avez bien proposé un duel à {player}."
+  duel-target-create: "§6» §f{player} vous propose un duel avec une mise de {mise}$, pour l'accepter faites /duel."
+  duel-player-execute-command: "§6» §fVous ne pouvez pas éxécuter de commandes en duel."
+  duel-spectator-execute-command: "§6» §fVous ne pouvez pas éxécuter de commandes dans un duel. Veuillez d'abord le quitter §6/spawn§f."
+  duel-start: "§6» §fDémarrage du duel !"
+  duel-player-now-spectator: "§6» §f{player} est désormais spectateur de votre duel."
+  duel-player-no-longer-spectator: "§6» §f{player} n'est désormais plus spectateur de votre duel."
+  duel-spectator-join: "§6» §fVous êtes désormais spectateur du duel. Pour quitter veuillez faire §6/spawn§f."
+  duel-spectator-quit: "§6» §fVous n'êtes désormais plus spectateur du duel."
+  duel-ended: "§6» §fFélicitations à §6{winner} §fqui remporte le duel et qui gagne la mise de §6{mise}$§f."
+  duel-starting-title-3: "§aDémarrage dans 3"
+  duel-starting-title-2: "§6Démarrage dans 2"
+  duel-starting-title-1: "§cDémarrage dans 1"
+  duel-starting-title-gl: "§eBonne chance !"
+
+  koth-start: "§6» §fL'évent §6KOTH §fa commencé !"
+  koth-captured: "§6» §fFélicitations à §6{winner} §fqui a capturé le KOTH !"
+  koth-reward: "§6» §fVous avez gagné §6{money}$ §fet §6x{keyCount} Clé Event §fpour avoir remporté le KOTH !"
+  koth-already-started: "§6» §fUn évent KOTH est déjà en cours."
+  koth-player-start: "§6» §fVous avez bien démarré un event KOTH !"
+
+  chestrefill-first-level: "§6» §fLes coffres de tier §61 §font été refill !"
+  chestrefill-second-level: "§6» §fLes coffres de tier §62 §font été refill !"
+  chestrefill-command-success: "§6» §fVous avez bien refill les coffres de palier {level}."

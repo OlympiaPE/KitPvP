@@ -1,0 +1,28 @@
+Items:
+  type: "category"
+  Stick:
+    type: "item"
+    item: "stick"
+    price: 20
+    image: "textures/items/stick"
+  Diamond Sword:
+    type: "item"
+    item: "diamond_sword"
+    price: 10
+    image: "textures/items/diamond_sword"
+Blocks:
+  type: "category"
+  Bois:
+    type: "category"
+    Acacia:
+      type: "block"
+      item: "acacia_wood"
+      price: 100
+      image: "textures/blocks/log_acacia"
+  Sol:
+    type: "category"
+    Terre:
+      type: "block"
+      item: "dirt"
+      price: 50
+      image: "textures/blocks/dirt"
