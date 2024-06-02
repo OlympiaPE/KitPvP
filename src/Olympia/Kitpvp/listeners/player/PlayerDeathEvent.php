@@ -2,20 +2,20 @@
 
 namespace Olympia\Kitpvp\listeners\player;
 
-use Olympia\Kitpvp\managers\types\CombatManager;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\DuelManager;
-use Olympia\Kitpvp\managers\types\TournamentManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\SenseiTarzan\ExtraEvent\Class\EventAttribute;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDeathEvent as Event;
 
 class PlayerDeathEvent implements Listener
 {
+    #[EventAttribute(EventPriority::NORMAL)]
     public function onDeath(Event $event): void
     {
-        /** @var OlympiaPlayer $player */
+        /** @var Session $player */
         $player = $event->getPlayer();
         $cause = $player->getLastDamageCause();
 
@@ -23,23 +23,23 @@ class PlayerDeathEvent implements Listener
 
         $player->addDeath();
 
-        if (CombatManager::getInstance()->inFight($player)) {
-            CombatManager::getInstance()->removePlayerFight($player);
+        if (Managers::COMBAT()->inFight($player)) {
+            Managers::COMBAT()->removePlayerFight($player);
         }
 
         if($cause instanceof EntityDamageByEntityEvent) {
 
             $killer = $cause->getDamager();
-            if ($killer instanceof OlympiaPlayer) {
+            if ($killer instanceof Session) {
 
-                if ($killer->getDuelState() === OlympiaPlayer::DUEL_STATE_FIGHTER && $player->getDuelState() === OlympiaPlayer::DUEL_STATE_FIGHTER) {
+                if ($killer->getDuelState() === Session::DUEL_STATE_FIGHTER && $player->getDuelState() === Session::DUEL_STATE_FIGHTER) {
 
-                    $duel = DuelManager::getInstance()->getDuelById($killer->getDuelId());
+                    $duel = Managers::DUEL()->getDuelById($killer->getDuelId());
                     $duel->setWinner($killer->getName());
                     $duel->end();
                 }elseif ($killer->inTournament()) {
 
-                    $tournament = TournamentManager::getInstance()->getTournament();
+                    $tournament = Managers::TOURNAMENT()->getTournament();
                     $tournament->setFightWinner($killer->getName());
                 }else{
 
@@ -53,19 +53,19 @@ class PlayerDeathEvent implements Listener
                         $killer->setBestKillstreak($killer->getKillstreak());
                     }
 
-                    if (CombatManager::getInstance()->inFight($killer)) {
-                        CombatManager::getInstance()->removePlayerFight($killer);
+                    if (Managers::COMBAT()->inFight($killer)) {
+                        Managers::COMBAT()->removePlayerFight($killer);
                     }
 
                     $message = str_replace(
                         ["{player}", "{killer}"],
                         [$player->getDisplayName(), $killer->getDisplayName()],
-                        ConfigManager::getInstance()->getNested("messages.kill")
+                        Managers::CONFIG()->getNested("messages.kill")
                     );
 
                     $player->getServer()->getLogger()->info($message);
 
-                    /** @var OlympiaPlayer $playerToSendMessage */
+                    /** @var Session $playerToSendMessage */
                     foreach ($killer->getServer()->getOnlinePlayers() as $playerToSendMessage) {
                         if($playerToSendMessage->getSettings()['kill-message']) {
                             $playerToSendMessage->sendMessage($message);

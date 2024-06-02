@@ -2,11 +2,11 @@
 
 namespace Olympia\Kitpvp\entities\objects;
 
+use Closure;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
-use Closure;
 use pocketmine\Server;
 
 class FloatingText extends Entity
@@ -18,8 +18,6 @@ class FloatingText extends Entity
     private mixed $managerClass = null;
 
     private int $updateTime = 1;
-
-    public array $playersNameTag = [];
 
     protected function initEntity(CompoundTag $nbt): void
     {

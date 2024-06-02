@@ -3,7 +3,7 @@
 namespace Olympia\Kitpvp\commands\navigation;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 
@@ -18,7 +18,7 @@ class LobbyCommand extends OlympiaCommand
     {
         if ($sender instanceof Player) {
 
-            $lobbyInfos = ConfigManager::getInstance()->get("lobby");
+            $lobbyInfos = Managers::CONFIG()->get("lobby");
             $sender->transfer($lobbyInfos["ip"], $lobbyInfos["port"]);
         }else{
             $this->sendNotPlayerMessage($sender);

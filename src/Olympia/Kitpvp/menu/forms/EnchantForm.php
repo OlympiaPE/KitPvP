@@ -2,9 +2,9 @@
 
 namespace Olympia\Kitpvp\menu\forms;
 
-use Olympia\Kitpvp\libs\Vecnavium\FormsUI\SimpleForm;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\Vecnavium\FormsUI\SimpleForm;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\utils\Utils;
 use pocketmine\item\Armor;
 use pocketmine\item\Bow;
@@ -12,7 +12,6 @@ use pocketmine\item\Durable;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\enchantment\VanillaEnchantments;
 use pocketmine\item\Sword;
-use pocketmine\item\Tool;
 
 class EnchantForm extends Form
 {
@@ -22,9 +21,9 @@ class EnchantForm extends Form
     public const ENCHANT_POWER = 3;
     public const ENCHANT_PUNCH = 4;
 
-    public static function sendBaseMenu(OlympiaPlayer $player, ...$infos): void
+    public static function sendBaseMenu(Session $player, ...$infos): void
     {
-        $form = new SimpleForm(function (OlympiaPlayer $player, int $data = null) {
+        $form = new SimpleForm(function (Session $player, int $data = null) {
 
             if($data === null) {
 
@@ -38,7 +37,7 @@ class EnchantForm extends Form
                 case self::ENCHANT_PROTECTION:
 
                     if(!$item instanceof Armor) {
-                        $player->sendMessage(ConfigManager::getInstance()->getNested("messages.enchant-incompatible-item"));
+                        $player->sendMessage(Managers::CONFIG()->getNested("messages.enchant-incompatible-item"));
                         return true;
                     }
                     break;
@@ -46,7 +45,7 @@ class EnchantForm extends Form
                 case self::ENCHANT_UNBREAKING:
 
                     if(!$item instanceof Durable) {
-                        $player->sendMessage(ConfigManager::getInstance()->getNested("messages.enchant-incompatible-item"));
+                        $player->sendMessage(Managers::CONFIG()->getNested("messages.enchant-incompatible-item"));
                         return true;
                     }
                     break;
@@ -54,7 +53,7 @@ class EnchantForm extends Form
                 case self::ENCHANT_SHARPNESS:
 
                     if(!$item instanceof Sword) {
-                        $player->sendMessage(ConfigManager::getInstance()->getNested("messages.enchant-incompatible-item"));
+                        $player->sendMessage(Managers::CONFIG()->getNested("messages.enchant-incompatible-item"));
                         return true;
                     }
                     break;
@@ -63,7 +62,7 @@ class EnchantForm extends Form
                 case self::ENCHANT_PUNCH:
 
                     if(!$item instanceof Bow) {
-                        $player->sendMessage(ConfigManager::getInstance()->getNested("messages.enchant-incompatible-item"));
+                        $player->sendMessage(Managers::CONFIG()->getNested("messages.enchant-incompatible-item"));
                         return true;
                     }
                     break;
@@ -86,7 +85,7 @@ class EnchantForm extends Form
         $player->sendForm($form);
     }
 
-    public static function selectEnchantLevelForm(OlympiaPlayer $player, int $echantment): void
+    public static function selectEnchantLevelForm(Session $player, int $echantment): void
     {
         $enchantmentName = match ($echantment) {
             self::ENCHANT_PROTECTION => "Protection",
@@ -104,7 +103,7 @@ class EnchantForm extends Form
             self::ENCHANT_PUNCH => [2, 900],
         ];
 
-        $form = new SimpleForm(function (OlympiaPlayer $player, int $data = null) use ($level, $echantment) {
+        $form = new SimpleForm(function (Session $player, int $data = null) use ($level, $echantment) {
 
             if($data === null) {
 
@@ -132,10 +131,10 @@ class EnchantForm extends Form
                 $player->sendMessage(str_replace(
                     "{price}",
                     (string)$price,
-                    ConfigManager::getInstance()->getNested("messages.enchant-success")
+                    Managers::CONFIG()->getNested("messages.enchant-success")
                 ));
             }else{
-                $player->sendMessage(ConfigManager::getInstance()->getNested("messages.not-enough-money"));
+                $player->sendMessage(Managers::CONFIG()->getNested("messages.not-enough-money"));
             }
 
             return true;

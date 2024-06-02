@@ -2,21 +2,24 @@
 
 namespace Olympia\Kitpvp\listeners\entity;
 
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\SenseiTarzan\ExtraEvent\Class\EventAttribute;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\DuelManager;
 use Olympia\Kitpvp\managers\types\TournamentManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use pocketmine\event\Listener;
 use pocketmine\event\entity\EntityDamageEvent as Event;
+use pocketmine\event\EventPriority;
+use pocketmine\event\Listener;
 
 class EntityDamageEvent implements Listener
 {
+    #[EventAttribute(EventPriority::NORMAL)]
     public function onDamage(Event $event): void
     {
         $entity = $event->getEntity();
         $cause = $event->getCause();
 
-        if ($entity instanceof OlympiaPlayer) {
+        if ($entity instanceof Session) {
 
             switch ($cause) {
 
@@ -30,7 +33,7 @@ class EntityDamageEvent implements Listener
 
                     if ($entity->inTournament()) {
 
-                        $tournament = TournamentManager::getInstance()->getTournament();
+                        $tournament = Managers::TOURNAMENT()->getTournament();
                         if ($tournament->getType() === TournamentManager::TOURNAMENT_TYPE_SUMO && $tournament->isDamageable($entity)) {
 
                             $fighters = $tournament->getFightersNames();
@@ -41,9 +44,9 @@ class EntityDamageEvent implements Listener
                         }
                     }
 
-                    if ($entity->getDuelState() === OlympiaPlayer::DUEL_STATE_FIGHTER) {
+                    if ($entity->getDuelState() === Session::DUEL_STATE_FIGHTER) {
 
-                        $duel = DuelManager::getInstance()->getDuelById($entity->getDuelId());
+                        $duel = Managers::DUEL()->getDuelById($entity->getDuelId());
                         if ($duel->getType() === DuelManager::DUEL_TYPE_SUMO) {
 
                             $players = $duel->getPlayersName();
@@ -55,7 +58,7 @@ class EntityDamageEvent implements Listener
                         }
                     }
 
-                    $zones = ConfigManager::getInstance()->get("no-fall-damage-zones");
+                    $zones = Managers::CONFIG()->get("no-fall-damage-zones");
                     $toCheck = $entity->getPosition();
 
                     foreach ($zones as $zoneInfos) {
@@ -77,11 +80,11 @@ class EntityDamageEvent implements Listener
 
             if (!$event->isCancelled()) {
 
-                if ($entity->getDuelState() === OlympiaPlayer::DUEL_STATE_SPECTATOR) {
+                if ($entity->getDuelState() === Session::DUEL_STATE_SPECTATOR) {
                     $event->cancel();
                 }
 
-                if ($entity->inTournament() && !TournamentManager::getInstance()->getTournament()->isDamageable($entity)) {
+                if ($entity->inTournament() && !Managers::TOURNAMENT()->getTournament()->isDamageable($entity)) {
                     $event->cancel();
                 }
             }

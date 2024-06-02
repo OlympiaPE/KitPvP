@@ -3,7 +3,7 @@
 namespace Olympia\Kitpvp\commands\utils;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 
@@ -28,7 +28,7 @@ class ListCommand extends OlympiaCommand
         $sender->sendMessage(str_replace(
             ["{playersCount}", "{playersNames}"],
             [$playersCount, $playerNames],
-            ConfigManager::getInstance()->getNested("messages.list")
+            Managers::CONFIG()->getNested("messages.list")
         ));
     }
 }

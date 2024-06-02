@@ -2,15 +2,12 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
-use Olympia\Kitpvp\managers\ManageLoader;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\Server;
-use pocketmine\utils\SingletonTrait;
 
-final class StatsManager extends ManageLoader
+final class StatsManager extends Manager
 {
-    use SingletonTrait;
-
     public const STATS_KILL = "kill";
     public const STATS_DEATH = "death";
     public const STATS_KILLSTREAK = "killstreak";
@@ -23,7 +20,7 @@ final class StatsManager extends ManageLoader
     private array $killstreakLeaderboard;
     private array $nerdLeaderboard;
 
-    public function onInit(): void
+    public function onLoad(): void
     {
         $this->updateDataCache();
         $this->updateLeaderboard();
@@ -38,7 +35,7 @@ final class StatsManager extends ManageLoader
             if ($file != '.' && $file != '..') {
                 $name = pathinfo($file, PATHINFO_FILENAME);
                 if(!is_null($player = Server::getInstance()->getPlayerExact($name))) {
-                    /** @var OlympiaPlayer $player */
+                    /** @var Session $player */
                     $playersStatsDataCache[$name] = [
                         "death" => $player->getDeath(),
                         "kill" => $player->getKill(),

@@ -4,10 +4,9 @@ namespace Olympia\Kitpvp\commands\moderation;
 
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\ModerationManager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\WebhookManager;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 
 class UnbanCommand extends OlympiaCommand
@@ -27,20 +26,20 @@ class UnbanCommand extends OlympiaCommand
 
             $playerName = $args[0];
 
-            if(ModerationManager::getInstance()->isBanned($playerName)) {
+            if(Managers::MODERATION()->isBanned($playerName)) {
 
                 $staff = $sender->getName();
-                ModerationManager::getInstance()->removeBan($playerName);
+                Managers::MODERATION()->removeBan($playerName);
 
                 $sender->sendMessage(str_replace(
                     "{player}",
                     $playerName,
-                    ConfigManager::getInstance()->getNested("messages.unban")
+                    Managers::CONFIG()->getNested("messages.unban")
                 ));
 
-                WebhookManager::getInstance()->sendMessage("Débanissement", "**Joueur** : $playerName\n**Staff** : $staff", WebhookManager::CHANNEL_LOGS_SANCTIONS);
+                Managers::WEBHOOK()->sendMessage("Débanissement", "**Joueur** : $playerName\n**Staff** : $staff", WebhookManager::CHANNEL_LOGS_SANCTIONS);
             }else{
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.unban-not-banned"));
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.unban-not-banned"));
             }
         }else{
             $this->sendUsageMessage($sender);

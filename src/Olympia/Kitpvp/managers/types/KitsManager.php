@@ -2,19 +2,16 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
-use Olympia\Kitpvp\managers\ManageLoader;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\item\Armor;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\enchantment\VanillaEnchantments;
 use pocketmine\item\PotionType;
 use pocketmine\item\VanillaItems;
-use pocketmine\utils\SingletonTrait;
 
-final class KitsManager extends ManageLoader
+final class KitsManager extends Manager
 {
-    use SingletonTrait;
-
     public const KIT_REFILL = 0;
     public const KIT_HOURLY = 1;
     public const KIT_DAILY = 2;
@@ -30,7 +27,7 @@ final class KitsManager extends ManageLoader
     public const KIT_ZEUS = 12;
     public const KIT_HADES = 13;
 
-    public function onInit(): void
+    public function onLoad(): void
     {
     }
 
@@ -211,7 +208,7 @@ final class KitsManager extends ManageLoader
         return $contents;
     }
 
-    public function givePlayerKit(OlympiaPlayer $player, int $kit, int $count = 1): void
+    public function givePlayerKit(Session $player, int $kit, int $count = 1): void
     {
         $contents = $this->getKitContents($kit);
         for($c = 1; $c <= $count; $c++) {

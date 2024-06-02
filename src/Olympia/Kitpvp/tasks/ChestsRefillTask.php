@@ -2,7 +2,7 @@
 
 namespace Olympia\Kitpvp\tasks;
 
-use Olympia\Kitpvp\managers\types\EventsManager;
+use Olympia\Kitpvp\handlers\Handlers;
 use pocketmine\scheduler\Task;
 
 final class ChestsRefillTask extends Task
@@ -12,13 +12,13 @@ final class ChestsRefillTask extends Task
     public function onRun(): void
     {
         // LEvEL 1
-        EventsManager::getInstance()->refillChests(1);
+        Handlers::CHEST_REFILL()->refillChests(1);
 
         // LEVEL 2
         $this->secondLevelProgression++;
         if ($this->secondLevelProgression >= 6) {
             $this->secondLevelProgression = 0;
-            EventsManager::getInstance()->refillChests(2);
+            Handlers::CHEST_REFILL()->refillChests(2);
         }
     }
 }

@@ -2,14 +2,13 @@
 
 namespace Olympia\Kitpvp\commands\moderation;
 
-use DateTimeZone;
 use DateTime;
+use DateTimeZone;
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\ModerationManager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\WebhookManager;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
@@ -39,7 +38,7 @@ class BanCommand extends OlympiaCommand
             $reason = substr($reason, 0, strlen($reason) - 1);
             $staff = $sender->getName();
 
-            if(!ModerationManager::getInstance()->isBanned($playerName)) {
+            if(!Managers::MODERATION()->isBanned($playerName)) {
 
                 try {
                     $dateTime = new DateTime('now', new DateTimeZone('Europe/Paris'));
@@ -56,11 +55,11 @@ class BanCommand extends OlympiaCommand
                     }elseif(strpos($time, "S") || strpos($time, "s")) {
                         $dateTime->modify("+" . str_replace([" ", "S", "s"], "", $time) . " second");
                     }else{
-                        $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.ban-invalid-duration"));
+                        $sender->sendMessage(Managers::CONFIG()->getNested("messages.ban-invalid-duration"));
                         return;
                     }
                 }catch (Exception) {
-                    $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.ban-invalid-duration"));
+                    $sender->sendMessage(Managers::CONFIG()->getNested("messages.ban-invalid-duration"));
                     return;
                 }
 
@@ -71,19 +70,19 @@ class BanCommand extends OlympiaCommand
                     $player->kick(str_replace(
                         ["{staff}", "{reason}", "{date}"],
                         [$staff, $reason, $serializedDate],
-                        ConfigManager::getInstance()->getNested("messages.ban-kick-screen")
+                        Managers::CONFIG()->getNested("messages.ban-kick-screen")
                     ));
                 }
 
-                ModerationManager::getInstance()->addBan($playerName, $dateTime, $reason, $staff);
+                Managers::MODERATION()->addBan($playerName, $dateTime, $reason, $staff);
                 $sender->getServer()->broadcastMessage(str_replace(
                     ["{player}", "{staff}", "{reason}", "{date}"],
                     [$playerName, $staff, $reason, $serializedDate],
-                    ConfigManager::getInstance()->getNested("messages.ban-broadcast-message")
+                    Managers::CONFIG()->getNested("messages.ban-broadcast-message")
                 ));
-                WebhookManager::getInstance()->sendMessage("Banissement", "**Joueur** : $playerName\n**Staff** : $staff\n**Raison** : $reason\n*Jusqu'au $serializedDate*", WebhookManager::CHANNEL_LOGS_SANCTIONS);
+                Managers::WEBHOOK()->sendMessage("Banissement", "**Joueur** : $playerName\n**Staff** : $staff\n**Raison** : $reason\n*Jusqu'au $serializedDate*", WebhookManager::CHANNEL_LOGS_SANCTIONS);
             }else{
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.ban-already-banned"));
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.ban-already-banned"));
             }
         }else{
             $this->sendUsageMessage($sender);

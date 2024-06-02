@@ -2,13 +2,12 @@
 
 namespace Olympia\Kitpvp\koth;
 
-use Olympia\Kitpvp\Core;
 use Olympia\Kitpvp\entities\objects\FloatingText;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\handlers\Handlers;
+use Olympia\Kitpvp\Loader;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\BoxsManager;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\EventsManager;
-use Olympia\Kitpvp\managers\types\FloatingTextManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
 use pocketmine\math\Vector3;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\TaskHandler;
@@ -27,12 +26,12 @@ class Koth
 
     public function __construct()
     {
-        EventsManager::getInstance()->removeKothFloatingText();
-        $this->floatingTextId = FloatingTextManager::getInstance()->createFloatingText(
-            FloatingTextManager::getInstance()->getLocationByCoordinates(
-                ConfigManager::getInstance()->getNested("koth.floating-text.x"),
-                ConfigManager::getInstance()->getNested("koth.floating-text.y"),
-                ConfigManager::getInstance()->getNested("koth.floating-text.z")
+        Handlers::KOTH()->removeKothFloatingText();
+        $this->floatingTextId = Managers::FLOATING_TEXT()->createFloatingText(
+            Managers::FLOATING_TEXT()->getLocationByCoordinates(
+                Managers::CONFIG()->getNested("koth.floating-text.x"),
+                Managers::CONFIG()->getNested("koth.floating-text.y"),
+                Managers::CONFIG()->getNested("koth.floating-text.z")
             ),
             "§6KOTH",
             function (FloatingText $entity) {
@@ -53,16 +52,16 @@ class Koth
             $this
         );
 
-        Server::getInstance()->broadcastMessage(ConfigManager::getInstance()->getNested("messages.koth-start"));
+        Server::getInstance()->broadcastMessage(Managers::CONFIG()->getNested("messages.koth-start"));
 
-        $this->taskHandler = Core::getInstance()->getScheduler()->scheduleRepeatingTask(new ClosureTask(function () {
+        $this->taskHandler = Loader::getInstance()->getScheduler()->scheduleRepeatingTask(new ClosureTask(function () {
 
             $players = [];
             $zone = $this->getZone();
             $first = $zone["first"];
             $second = $zone["second"];
 
-            /** @var OlympiaPlayer $player */
+            /** @var Session $player */
             foreach ($this->getWorld()->getPlayers() as $player) {
                 $toCheck = $player->getPosition();
                 if(
@@ -115,35 +114,35 @@ class Koth
         Server::getInstance()->broadcastMessage(str_replace(
             "{winner}",
             $playerName ?? "",
-            ConfigManager::getInstance()->getNested("messages.koth-captured")
+            Managers::CONFIG()->getNested("messages.koth-captured")
         ));
 
-        if ($player instanceof OlympiaPlayer) {
+        if ($player instanceof Session) {
 
-            $rewards = ConfigManager::getInstance()->getNested("koth.rewards");
+            $rewards = Managers::CONFIG()->getNested("koth.rewards");
             $money = $rewards["money"];
             $keyCount = $rewards["key-event"];
 
             $player->addMoney($money);
-            BoxsManager::getInstance()->giveKey($player, BoxsManager::BOX_EVENT, $keyCount);
+            Managers::BOXS()->giveKey($player, BoxsManager::BOX_EVENT, $keyCount);
 
             $player->sendMessage(str_replace(
                 ["{money}", "{keyCount}"],
                 [$money, $keyCount],
-                ConfigManager::getInstance()->getNested("messages.koth-reward")
+                Managers::CONFIG()->getNested("messages.koth-reward")
             ));
         }
 
         $this->taskHandler->cancel();
-        EventsManager::getInstance()->removeKoth();
+        Handlers::KOTH()->removeKoth();
 
-        FloatingTextManager::getInstance()->removeFloatingText($this->floatingTextId);
-        EventsManager::getInstance()->createKothFloatingText();
+        Managers::FLOATING_TEXT()->removeFloatingText($this->floatingTextId);
+        Handlers::KOTH()->createKothFloatingText();
     }
 
     public function getWorldName(): string
     {
-        return ConfigManager::getInstance()->getNested("koth.world");
+        return Managers::CONFIG()->getNested("koth.world");
     }
 
     public function getWorld(): World
@@ -166,7 +165,7 @@ class Koth
      */
     public function getZone(): array
     {
-        $zone = ConfigManager::getInstance()->getNested("koth.zone");
+        $zone = Managers::CONFIG()->getNested("koth.zone");
         return ["first" => new Vector3($zone["min-x"], $zone["min-y"], $zone["min-z"]), "second" => new Vector3($zone["max-x"], $zone["max-y"], $zone["max-z"])];
     }
 
@@ -178,7 +177,7 @@ class Koth
     public function getCaptureTimeRemaining(): ?int
     {
         return !is_null($this->captureTime)
-            ? ConfigManager::getInstance()->getNested("koth.capture-time") - (time() - $this->captureTime)
+            ? Managers::CONFIG()->getNested("koth.capture-time") - (time() - $this->captureTime)
             : null;
     }
 

@@ -2,17 +2,17 @@
 
 namespace Olympia\Kitpvp\menu\forms;
 
-use Olympia\Kitpvp\libs\Vecnavium\FormsUI\SimpleForm;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\Vecnavium\FormsUI\SimpleForm;
 
 class ServeurForm extends Form
 {
-    public static function sendBaseMenu(OlympiaPlayer $player, ...$infos): void
+    public static function sendBaseMenu(Session $player, ...$infos): void
     {
-        $servers = ConfigManager::getInstance()->get("servers");
+        $servers = Managers::CONFIG()->get("servers");
 
-        $form = new SimpleForm(function (OlympiaPlayer $player, int $data = null) use ($servers) {
+        $form = new SimpleForm(function (Session $player, int $data = null) use ($servers) {
 
             if ($data === null)
                 return true;

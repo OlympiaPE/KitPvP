@@ -2,13 +2,13 @@
 
 namespace Olympia\Kitpvp\commands\moderation;
 
+use DateTime;
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
-use DateTime;
 
 class AliasCommand extends OlympiaCommand
 {
@@ -31,7 +31,7 @@ class AliasCommand extends OlympiaCommand
             }elseif(!is_null($data = Server::getInstance()->getOfflinePlayerData($target))) {
                 $targetIp = $data->getCompoundTag("properties")->getString("ip");
             }else{
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.player-not-found"));
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.player-not-found"));
                 return;
             }
             $dc = [];
@@ -53,13 +53,13 @@ class AliasCommand extends OlympiaCommand
             $message = str_replace(
                 ["{player}", "{ip}"],
                 [$target, $targetIp],
-                ConfigManager::getInstance()->getNested("messages.alias-title")
+                Managers::CONFIG()->getNested("messages.alias-title")
             );
             foreach ($dc as $name => $lastPlayed) {
                 $message .= "\n" . str_replace(
                     ["{pseudo}", "{lastPlayed}"],
                     [$name, $lastPlayed],
-                    ConfigManager::getInstance()->getNested("messages.alias-line")
+                    Managers::CONFIG()->getNested("messages.alias-line")
                 );
             }
             $sender->sendMessage($message);

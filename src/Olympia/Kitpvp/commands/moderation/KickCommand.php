@@ -4,9 +4,9 @@ namespace Olympia\Kitpvp\commands\moderation;
 
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\WebhookManager;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
@@ -42,24 +42,24 @@ class KickCommand extends OlympiaCommand
                 $player->kick(str_replace(
                     ["{staff}", "{reason}"],
                     [$staff, $reason],
-                    ConfigManager::getInstance()->getNested("messages.kick-screen")
+                    Managers::CONFIG()->getNested("messages.kick-screen")
                 ));
 
                 $sender->sendMessage(str_replace(
                     ["{player}", "{reason}"],
                     [$playerName, $reason],
-                    ConfigManager::getInstance()->getNested("messages.kick-staff")
+                    Managers::CONFIG()->getNested("messages.kick-staff")
                 ));
 
                 Server::getInstance()->broadcastMessage(str_replace(
                     ["{player}", "{staff}", "{reason}"],
                     [$playerName, $staff, $reason],
-                    ConfigManager::getInstance()->getNested("messages.kick-broadcast-message")
+                    Managers::CONFIG()->getNested("messages.kick-broadcast-message")
                 ));
 
-                WebhookManager::getInstance()->sendMessage("Expulsion", "**Joueur** : $playerName\n**Staff** : $staff\n**Raison** : $reason", WebhookManager::CHANNEL_LOGS_SANCTIONS);
+                Managers::WEBHOOK()->sendMessage("Expulsion", "**Joueur** : $playerName\n**Staff** : $staff\n**Raison** : $reason", WebhookManager::CHANNEL_LOGS_SANCTIONS);
             }else{
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.player-not-found"));
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.player-not-found"));
             }
         }else{
             $this->sendUsageMessage($sender);

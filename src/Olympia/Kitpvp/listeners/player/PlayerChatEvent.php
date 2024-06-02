@@ -2,10 +2,11 @@
 
 namespace Olympia\Kitpvp\listeners\player;
 
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\ModerationManager;
+use Olympia\Kitpvp\libraries\SenseiTarzan\ExtraEvent\Class\EventAttribute;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\traits\BlacklistTrait;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
+use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent as Event;
 
@@ -13,29 +14,30 @@ class PlayerChatEvent implements Listener
 {
     use BlacklistTrait;
 
+    #[EventAttribute(EventPriority::NORMAL)]
     public function onChat(Event $event): void
     {
         $player = $event->getPlayer();
 
-        if(ModerationManager::getInstance()->isMute($player->getName())) {
+        if(Managers::MODERATION()->isMute($player->getName())) {
             $event->cancel();
-            $rt = ModerationManager::getInstance()->getMuteRemainingTime($player->getName());
+            $rt = Managers::MODERATION()->getMuteRemainingTime($player->getName());
             $player->sendMessage(str_replace(
                 "{remainingTime}",
                 $rt,
-                ConfigManager::getInstance()->getNested("messages.mute")
+                Managers::CONFIG()->getNested("messages.mute")
             ));
         }
 
         if(!$player->getServer()->isOp($player->getName())) {
 
-            if(ModerationManager::getInstance()->isChatLocked()) {
+            if(Managers::MODERATION()->isChatLocked()) {
 
-                $player->sendMessage(ConfigManager::getInstance()->getNested("messages.chat-locked"));
+                $player->sendMessage(Managers::CONFIG()->getNested("messages.chat-locked"));
                 $event->cancel();
             }elseif ($this->isBlacklist($player)) {
 
-                $player->sendMessage(ConfigManager::getInstance()->getNested("messages.anti-spam"));
+                $player->sendMessage(Managers::CONFIG()->getNested("messages.anti-spam"));
                 $event->cancel();
             }else{
 

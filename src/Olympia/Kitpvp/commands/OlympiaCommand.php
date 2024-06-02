@@ -2,7 +2,7 @@
 
 namespace Olympia\Kitpvp\commands;
 
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\lang\Translatable;
@@ -16,16 +16,16 @@ abstract class OlympiaCommand extends Command
     {
         parent::__construct($name, $description, $usageMessage, $aliases);
         $this->setPermission($this->permission);
-        $this->setPermissionMessage(ConfigManager::getInstance()->getNested("messages.not-allowed"));
+        $this->setPermissionMessage(Managers::CONFIG()->getNested("messages.not-allowed"));
     }
 
     public function sendNotPlayerMessage(CommandSender $sender): void
     {
-        $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.not-a-player"));
+        $sender->sendMessage(Managers::CONFIG()->getNested("messages.not-a-player"));
     }
 
     public function sendUsageMessage(CommandSender $sender): void
     {
-        $sender->sendMessage(str_replace("{commandUsage}", $this->getUsage(), ConfigManager::getInstance()->getNested("messages.command-args-error")));
+        $sender->sendMessage(str_replace("{commandUsage}", $this->getUsage(), Managers::CONFIG()->getNested("messages.command-args-error")));
     }
 }

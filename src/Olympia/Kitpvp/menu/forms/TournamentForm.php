@@ -2,20 +2,20 @@
 
 namespace Olympia\Kitpvp\menu\forms;
 
-use Olympia\Kitpvp\libs\Vecnavium\FormsUI\CustomForm;
-use Olympia\Kitpvp\libs\Vecnavium\FormsUI\SimpleForm;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\entities\SessionCooldowns;
+use Olympia\Kitpvp\libraries\Vecnavium\FormsUI\CustomForm;
+use Olympia\Kitpvp\libraries\Vecnavium\FormsUI\SimpleForm;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\TournamentManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use Olympia\Kitpvp\player\PlayerCooldowns;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use Olympia\Kitpvp\utils\Utils;
 
 class TournamentForm extends Form
 {
-    public static function sendBaseMenu(OlympiaPlayer $player, ...$infos): void
+    public static function sendBaseMenu(Session $player, ...$infos): void
     {
-        $form = new SimpleForm(function (OlympiaPlayer $player, int $data = null) {
+        $form = new SimpleForm(function (Session $player, int $data = null) {
 
             if ($data === null)
                 return true;
@@ -23,50 +23,50 @@ class TournamentForm extends Form
             if ($data === 0) {
 
                 if ($player->hasPermission(Permissions::HOST_TOURNAMENT_24) || $player->hasPermission(Permissions::HOST_TOURNAMENT_12) || $player->hasPermission(Permissions::HOST_TOURNAMENT)) {
-                    if (!$player->getCooldowns()->hasCooldown(PlayerCooldowns::COOLDOWN_HOST_TOURNAMENT) || $player->hasPermission(Permissions::HOST_TOURNAMENT)) {
-                        if (!TournamentManager::getInstance()->hasCurrentTournament()) {
+                    if (!$player->getCooldowns()->hasCooldown(SessionCooldowns::COOLDOWN_HOST_TOURNAMENT) || $player->hasPermission(Permissions::HOST_TOURNAMENT)) {
+                        if (!Managers::TOURNAMENT()->hasCurrentTournament()) {
                             self::sendCreateTournamentMenu($player);
                         }else{
-                            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.tournament-error-already-tournament"));
+                            $player->sendMessage(Managers::CONFIG()->getNested("messages.tournament-error-already-tournament"));
                         }
                     }else{
                         $player->sendMessage(str_replace(
                             "{time}",
-                            Utils::durationToString($player->getCooldowns()->getCooldown(PlayerCooldowns::COOLDOWN_HOST_TOURNAMENT)),
-                            ConfigManager::getInstance()->getNested("messages.tournament-host-in-cooldown")
+                            Utils::durationToString($player->getCooldowns()->getCooldown(SessionCooldowns::COOLDOWN_HOST_TOURNAMENT)),
+                            Managers::CONFIG()->getNested("messages.tournament-host-in-cooldown")
                         ));
                     }
                 }else{
-                    $player->sendMessage(ConfigManager::getInstance()->getNested("messages.not-allowed"));
+                    $player->sendMessage(Managers::CONFIG()->getNested("messages.not-allowed"));
                 }
             }else{
 
-                if (TournamentManager::getInstance()->hasCurrentTournament()) {
-                    if (TournamentManager::getInstance()->isTournamentStarted()) {
-                        $player->sendMessage(ConfigManager::getInstance()->getNested("messages.tournament-join-error"));
+                if (Managers::TOURNAMENT()->hasCurrentTournament()) {
+                    if (Managers::TOURNAMENT()->isTournamentStarted()) {
+                        $player->sendMessage(Managers::CONFIG()->getNested("messages.tournament-join-error"));
                     }else{
                         if (
                             empty($player->getInventory()->getContents()) &&
                             empty($player->getArmorInventory()->getContents()) &&
                             empty($player->getOffHandInventory()->getContents())
                         ) {
-                            TournamentManager::getInstance()->getTournament()->addPlayer($player);
+                            Managers::TOURNAMENT()->getTournament()->addPlayer($player);
                         }else{
-                            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.inventory-must-be-empty"));
+                            $player->sendMessage(Managers::CONFIG()->getNested("messages.inventory-must-be-empty"));
                         }
                     }
                 }else{
-                    $player->sendMessage(ConfigManager::getInstance()->getNested("messages.tournament-join-error"));
+                    $player->sendMessage(Managers::CONFIG()->getNested("messages.tournament-join-error"));
                 }
             }
 
             return true;
         });
 
-        $tournamentState = TournamentManager::getInstance()->hasCurrentTournament()
-            ? (TournamentManager::getInstance()->isTournamentStarted()
+        $tournamentState = Managers::TOURNAMENT()->hasCurrentTournament()
+            ? (Managers::TOURNAMENT()->isTournamentStarted()
                 ? "§cImpossible de rejoindre"
-                : "§aCommence dans " . Utils::durationToShortString(TournamentManager::getInstance()->getTournament()->getStartIn()))
+                : "§aCommence dans " . Utils::durationToShortString(Managers::TOURNAMENT()->getTournament()->getStartIn()))
             : "§cAucun tournois en cours";
 
         $form->setTitle("§6Tournois");
@@ -77,15 +77,15 @@ class TournamentForm extends Form
         $player->sendForm($form);
     }
 
-    private static function sendCreateTournamentMenu(OlympiaPlayer $player): void
+    private static function sendCreateTournamentMenu(Session $player): void
     {
         $types = ["Nodebuff", "Sumo", "Bracket"];
 
-        $form = new CustomForm(function (OlympiaPlayer $player, array $data = null) {
+        $form = new CustomForm(function (Session $player, array $data = null) {
 
             if($data !== null) {
 
-                if (!TournamentManager::getInstance()->hasCurrentTournament()) {
+                if (!Managers::TOURNAMENT()->hasCurrentTournament()) {
 
                     $type = match ($data[0]) {
                         0 => TournamentManager::TOURNAMENT_TYPE_NODEBUFF,
@@ -95,7 +95,7 @@ class TournamentForm extends Form
 
                     if (!$player->hasPermission(Permissions::HOST_TOURNAMENT)) {
                         $player->getCooldowns()->setCooldown(
-                            PlayerCooldowns::COOLDOWN_HOST_TOURNAMENT,
+                            SessionCooldowns::COOLDOWN_HOST_TOURNAMENT,
                             60 * 60 * ($player->hasPermission(Permissions::HOST_TOURNAMENT_12) ? 12 : 24)
                         );
                     }
@@ -103,10 +103,10 @@ class TournamentForm extends Form
                     $player->sendMessage(str_replace(
                         "{type}",
                         $type,
-                        ConfigManager::getInstance()->getNested("messages.tournament-host-create")
+                        Managers::CONFIG()->getNested("messages.tournament-host-create")
                     ));
 
-                    TournamentManager::getInstance()->createTournament($player, $type);
+                    Managers::TOURNAMENT()->createTournament($player, $type);
 
                     if ($data[1]) {
                         if (
@@ -114,13 +114,13 @@ class TournamentForm extends Form
                             empty($player->getArmorInventory()->getContents()) &&
                             empty($player->getOffHandInventory()->getContents())
                         ) {
-                            TournamentManager::getInstance()->getTournament()->addPlayer($player);
+                            Managers::TOURNAMENT()->getTournament()->addPlayer($player);
                         }else{
-                            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.inventory-must-be-empty"));
+                            $player->sendMessage(Managers::CONFIG()->getNested("messages.inventory-must-be-empty"));
                         }
                     }
                 }else{
-                    $player->sendMessage(ConfigManager::getInstance()->getNested("messages.tournament-error-already-tournament"));
+                    $player->sendMessage(Managers::CONFIG()->getNested("messages.tournament-error-already-tournament"));
                 }
             }else{
                 self::sendBaseMenu($player);

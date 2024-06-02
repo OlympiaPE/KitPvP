@@ -4,10 +4,9 @@ namespace Olympia\Kitpvp\commands\utils;
 
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\HdvManager;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\entities\Session;
 use Olympia\Kitpvp\menu\gui\HdvGui;
-use Olympia\Kitpvp\player\OlympiaPlayer;
 use pocketmine\command\CommandSender;
 use pocketmine\item\VanillaItems;
 
@@ -23,28 +22,28 @@ class HdvCommand extends OlympiaCommand
      */
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        if($sender instanceof OlympiaPlayer) {
+        if($sender instanceof Session) {
 
             if(isset($args[0]) && ($args[0] === "sell" || $args[0] === "vendre")) {
                 $item = $sender->getInventory()->getItemInHand();
                 if($item->getTypeId() != VanillaItems::AIR()->getTypeId() && isset($args[1]) && is_numeric($args[1]) && !str_contains($args[1], '.')) {
                     $price = (int)$args[1];
                     if($price > 0 && $price <= 500000000) {
-                        $itemsPCount = HdvManager::getInstance()->getNumberPurchasablePlayerItems($sender->getName());
-                        $itemsECount = HdvManager::getInstance()->getNumberExpiredPlayerItems($sender->getName());
+                        $itemsPCount = Managers::HDV()->getNumberPurchasablePlayerItems($sender->getName());
+                        $itemsECount = Managers::HDV()->getNumberExpiredPlayerItems($sender->getName());
                         if(($itemsPCount + $itemsECount) < 5) {
-                            HdvManager::getInstance()->addPurchasableItemForPlayer($sender->getName(), $item, $price);
+                            Managers::HDV()->addPurchasableItemForPlayer($sender->getName(), $item, $price);
                             $sender->getInventory()->setItemInHand(VanillaItems::AIR());
                             $sender->sendMessage(str_replace(
                                 ["{item}", "{price}"],
                                 [$item->getName(), $price],
-                                ConfigManager::getInstance()->getNested("messages.hdv-add-item")
+                                Managers::CONFIG()->getNested("messages.hdv-add-item")
                             ));
                         }else{
-                            $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.hdv-max-slot"));
+                            $sender->sendMessage(Managers::CONFIG()->getNested("messages.hdv-max-slot"));
                         }
                     }else{
-                        $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.invalid-amount"));
+                        $sender->sendMessage(Managers::CONFIG()->getNested("messages.invalid-amount"));
                     }
                 }else{
                     $this->sendUsageMessage($sender);

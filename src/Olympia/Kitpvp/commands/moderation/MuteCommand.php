@@ -6,10 +6,9 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\ModerationManager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\WebhookManager;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
@@ -33,7 +32,7 @@ class MuteCommand extends OlympiaCommand
             if(!is_null($player = $sender->getServer()->getPlayerByPrefix($args[0]))) {
 
                 $playerName = $player->getName();
-                if(!ModerationManager::getInstance()->isMute($playerName)) {
+                if(!Managers::MODERATION()->isMute($playerName)) {
 
                     $reason = "";
                     //2 is the min index for reason
@@ -54,11 +53,11 @@ class MuteCommand extends OlympiaCommand
                         }elseif(strpos($time, "S") || strpos($time, "s")) {
                             $dateTime->modify("+" . str_replace([" ", "S", "s"], "", $time) . " second");
                         }else{
-                            $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.mute-invalid-duration"));
+                            $sender->sendMessage(Managers::CONFIG()->getNested("messages.mute-invalid-duration"));
                             return;
                         }
                     }catch (Exception) {
-                        $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.mute-invalid-duration"));
+                        $sender->sendMessage(Managers::CONFIG()->getNested("messages.mute-invalid-duration"));
                         return;
                     }
 
@@ -67,28 +66,28 @@ class MuteCommand extends OlympiaCommand
                     $duration = $diff->s + ($diff->i * 60) + ($diff->h * 3600) + ($diff->days * 86400) + 1;
                     $staff = $sender->getName();
 
-                    ModerationManager::getInstance()->addMute($playerName, $duration);
+                    Managers::MODERATION()->addMute($playerName, $duration);
 
-                    $remainingTime = ModerationManager::getInstance()->getMuteRemainingTime($playerName);
+                    $remainingTime = Managers::MODERATION()->getMuteRemainingTime($playerName);
 
                     Server::getInstance()->broadcastMessage(str_replace(
                         ["{player}", "{staff}", "{reason}", "{remainingTime}"],
                         [$playerName, $staff, $reason, $remainingTime],
-                        ConfigManager::getInstance()->getNested("messages.mute-broadcast-message")
+                        Managers::CONFIG()->getNested("messages.mute-broadcast-message")
                     ));
 
                     $player->sendMessage(str_replace(
                         ["{staff}", "{reason}", "{remainingTime}"],
                         [$staff, $reason, $remainingTime],
-                        ConfigManager::getInstance()->getNested("messages.mute-victim")
+                        Managers::CONFIG()->getNested("messages.mute-victim")
                     ));
 
-                    WebhookManager::getInstance()->sendMessage("Mute", "**Joueur** : $playerName\n**Staff** : $staff\n**Raison** : $reason\n**Durée** : $remainingTime", WebhookManager::CHANNEL_LOGS_SANCTIONS);
+                    Managers::WEBHOOK()->sendMessage("Mute", "**Joueur** : $playerName\n**Staff** : $staff\n**Raison** : $reason\n**Durée** : $remainingTime", WebhookManager::CHANNEL_LOGS_SANCTIONS);
                 }else{
-                    $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.mute-already-mute"));
+                    $sender->sendMessage(Managers::CONFIG()->getNested("messages.mute-already-mute"));
                 }
             }else{
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.player-not-found"));
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.player-not-found"));
             }
         }else{
             $this->sendUsageMessage($sender);

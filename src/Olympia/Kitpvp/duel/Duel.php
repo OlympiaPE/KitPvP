@@ -2,10 +2,10 @@
 
 namespace Olympia\Kitpvp\duel;
 
-use Olympia\Kitpvp\Core;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\Loader;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\DuelManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
 use Olympia\Kitpvp\utils\WorldUtils;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
@@ -31,7 +31,7 @@ final class Duel
     private string $winner = "";
     private array $spectators = [];
 
-    public function __construct(int $id, OlympiaPlayer $player, OlympiaPlayer $target, int $mise, int $type)
+    public function __construct(int $id, Session $player, Session $target, int $mise, int $type)
     {
         $this->id = $id;
         $this->players = [$player->getName(), $target->getName()];
@@ -40,21 +40,21 @@ final class Duel
         $this->state = DuelStates::PENDING;
         $this->creationTimestamp = time();
         $this->mapConfigKey = "duels-maps." . ($type == DuelManager::DUEL_TYPE_SUMO ? "sumo" : "basic");
-        $this->mapName = array_rand(ConfigManager::getInstance()->getNested($this->mapConfigKey));
+        $this->mapName = array_rand(Managers::CONFIG()->getNested($this->mapConfigKey));
     }
 
     public function start(): void
     {
         $this->setState(DuelStates::STARTING);
-        $this->broadcastPlayersMessage(ConfigManager::getInstance()->getNested("messages.duel-start"));
+        $this->broadcastPlayersMessage(Managers::CONFIG()->getNested("messages.duel-start"));
 
         $server = Server::getInstance();
         $baseMapName = $this->getMapName();
         $baseMapWorld = $server->getWorldManager()->getWorldByName($baseMapName);
 
         if (is_null($baseMapWorld)) {
-            $this->broadcastPlayersMessage(ConfigManager::getInstance()->getNested("messages.player-encounters-error"));
-            DuelManager::getInstance()->deleteDuel(DuelManager::getInstance()->getDuelIndexById($this->getId()));
+            $this->broadcastPlayersMessage(Managers::CONFIG()->getNested("messages.player-encounters-error"));
+            Managers::DUEL()->deleteDuel(Managers::DUEL()->getDuelIndexById($this->getId()));
             return;
         }
 
@@ -71,7 +71,7 @@ final class Duel
         $player1 = $players[0];
         $player2 = $players[1];
 
-        $mapInfos = ConfigManager::getInstance()->getNested($this->getMapConfigKey());
+        $mapInfos = Managers::CONFIG()->getNested($this->getMapConfigKey());
         $player1Pos = $mapInfos["players-spawn"]["1"];
         $player2Pos = $mapInfos["players-spawn"]["2"];
 
@@ -80,7 +80,7 @@ final class Duel
 
         foreach ($players as $p) {
             $p->setNoClientPredictions();
-            $p->setDuelState(OlympiaPlayer::DUEL_STATE_FIGHTER);
+            $p->setDuelState(Session::DUEL_STATE_FIGHTER);
             $p->setDuelId($this->getId());
             $p->setGamemode(GameMode::ADVENTURE);
 
@@ -89,33 +89,33 @@ final class Duel
             }
         }
 
-        $scheduler = Core::getInstance()->getScheduler();
+        $scheduler = Loader::getInstance()->getScheduler();
 
         $scheduler->scheduleDelayedTask(new ClosureTask(function () use ($scheduler, $player1, $player2) {
 
-            $this->broadcastPlayersTitle(ConfigManager::getInstance()->getNested("messages.duel-starting-title-3"));
+            $this->broadcastPlayersTitle(Managers::CONFIG()->getNested("messages.duel-starting-title-3"));
             $this->broadcastPlayersSound(new ClickSound());
 
             $scheduler->scheduleDelayedTask(new ClosureTask(function () use ($scheduler, $player1, $player2) {
 
-                $this->broadcastPlayersTitle(ConfigManager::getInstance()->getNested("messages.duel-starting-title-2"));
+                $this->broadcastPlayersTitle(Managers::CONFIG()->getNested("messages.duel-starting-title-2"));
                 $this->broadcastPlayersSound(new ClickSound());
 
                 $scheduler->scheduleDelayedTask(new ClosureTask(function () use ($scheduler, $player1, $player2) {
 
-                    $this->broadcastPlayersTitle(ConfigManager::getInstance()->getNested("messages.duel-starting-title-1"));
+                    $this->broadcastPlayersTitle(Managers::CONFIG()->getNested("messages.duel-starting-title-1"));
                     $this->broadcastPlayersSound(new ClickSound());
 
                     $scheduler->scheduleDelayedTask(new ClosureTask(function () use ($scheduler, $player1, $player2) {
 
-                        $this->broadcastPlayersTitle(ConfigManager::getInstance()->getNested("messages.duel-starting-title-gl"), 30);
+                        $this->broadcastPlayersTitle(Managers::CONFIG()->getNested("messages.duel-starting-title-gl"), 30);
                         $this->broadcastPlayersSound(new XpCollectSound());
 
                         $player1->setNoClientPredictions(false);
                         $player2->setNoClientPredictions(false);
 
-                        DuelManager::getInstance()->givePlayerDuelKit($player1, $this->getType());
-                        DuelManager::getInstance()->givePlayerDuelKit($player2, $this->getType());
+                        Managers::DUEL()->givePlayerDuelKit($player1, $this->getType());
+                        Managers::DUEL()->givePlayerDuelKit($player2, $this->getType());
 
                         $this->setState(DuelStates::IN_PROGRESS);
                     }), 20);
@@ -134,7 +134,7 @@ final class Duel
 
             foreach ($players as $p) {
 
-                $p->setDuelState(OlympiaPlayer::DUEL_STATE_NONE);
+                $p->setDuelState(Session::DUEL_STATE_NONE);
                 $p->resetDuelId();
                 $p->getInventory()->clearAll();
                 $p->getArmorInventory()->clearAll();
@@ -164,7 +164,7 @@ final class Duel
                     str_replace(
                         ["{winner}", "{mise}"],
                         [$this->getWinner(), $this->getMise()],
-                        ConfigManager::getInstance()->getNested("messages.duel-ended")
+                        Managers::CONFIG()->getNested("messages.duel-ended")
                     )
                 );
             }
@@ -185,7 +185,7 @@ final class Duel
     }
 
     /**
-     * @return OlympiaPlayer[]
+     * @return Session[]
      */
     public function getPlayers(): array
     {
@@ -197,7 +197,7 @@ final class Duel
     }
 
     /**
-     * @return OlympiaPlayer[]
+     * @return Session[]
      */
     public function getSpectators(): array
     {
@@ -290,45 +290,45 @@ final class Duel
 
     public function getKbInfos(): array
     {
-        return ConfigManager::getInstance()->getNested("duels-kb." . str_replace(" ", "-", strtolower(DuelManager::getInstance()->getDuelTypeDisplayName($this->getType()))));
+        return Managers::CONFIG()->getNested("duels-kb." . str_replace(" ", "-", strtolower(Managers::DUEL()->getDuelTypeDisplayName($this->getType()))));
     }
 
-    public function addSpectator(OlympiaPlayer $player): void
+    public function addSpectator(Session $player): void
     {
-        $player->setDuelState(OlympiaPlayer::DUEL_STATE_SPECTATOR);
+        $player->setDuelState(Session::DUEL_STATE_SPECTATOR);
         $player->setDuelId($this->getId());
 
-        $mapInfos = ConfigManager::getInstance()->getNested($this->getMapConfigKey());
+        $mapInfos = Managers::CONFIG()->getNested($this->getMapConfigKey());
         $pos = $mapInfos["players-spawn"]["spectator"];
         $world = $player->getServer()->getWorldManager()->getWorldByName($this->getWorldName());
         $player->teleport(new Position($pos["x"], $pos["y"], $pos["z"], $world));
 
         $player->setGamemode(GameMode::SPECTATOR);
-        $player->sendMessage(ConfigManager::getInstance()->getNested("messages.duel-spectator-join"));
+        $player->sendMessage(Managers::CONFIG()->getNested("messages.duel-spectator-join"));
 
         $this->broadcastPlayersMessage(str_replace(
             "{player}",
             $player->getName(),
-            ConfigManager::getInstance()->getNested("messages.duel-player-now-spectator")
+            Managers::CONFIG()->getNested("messages.duel-player-now-spectator")
         ));
 
         $this->spectators[] = $player->getName();
     }
 
-    public function removeSpectator(OlympiaPlayer $player): void
+    public function removeSpectator(Session $player): void
     {
-        $player->setDuelState(OlympiaPlayer::DUEL_STATE_NONE);
+        $player->setDuelState(Session::DUEL_STATE_NONE);
         $player->resetDuelId();
 
         // The '/spawn' command (used to remove the spectator) teleports already the player
 
         $player->setGamemode(GameMode::ADVENTURE);
-        $player->sendMessage(ConfigManager::getInstance()->getNested("messages.duel-spectator-quit"));
+        $player->sendMessage(Managers::CONFIG()->getNested("messages.duel-spectator-quit"));
 
         $this->broadcastPlayersMessage(str_replace(
             "{player}",
             $player->getName(),
-            ConfigManager::getInstance()->getNested("messages.duel-player-no-longer-spectator")
+            Managers::CONFIG()->getNested("messages.duel-player-no-longer-spectator")
         ));
 
         unset($this->spectators[array_search($player->getName(), $this->spectators)]);

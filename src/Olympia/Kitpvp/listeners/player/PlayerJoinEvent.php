@@ -3,10 +3,10 @@
 namespace Olympia\Kitpvp\listeners\player;
 
 use JsonException;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\CosmeticsManager;
-use Olympia\Kitpvp\managers\types\ScoreboardManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\SenseiTarzan\ExtraEvent\Class\EventAttribute;
+use Olympia\Kitpvp\managers\Managers;
+use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent as Event;
 use pocketmine\player\GameMode;
@@ -17,9 +17,10 @@ class PlayerJoinEvent implements Listener
     /**
      * @throws JsonException
      */
+    #[EventAttribute(EventPriority::NORMAL)]
     public function onJoin(Event $event): void
     {
-        /** @var OlympiaPlayer $player */
+        /** @var Session $player */
         $player = $event->getPlayer();
         $playerName = $player->getName();
 
@@ -30,7 +31,7 @@ class PlayerJoinEvent implements Listener
 
             $player->setGamemode(GameMode::ADVENTURE);
 
-            $spawnInfos = ConfigManager::getInstance()->get("spawn");
+            $spawnInfos = Managers::CONFIG()->get("spawn");
             $x = (int)$spawnInfos["x"];
             $y = (int)$spawnInfos["y"];
             $z = (int)$spawnInfos["z"];
@@ -40,23 +41,23 @@ class PlayerJoinEvent implements Listener
         }
 
         if($player->getSettings()["scoreboard"]) {
-            ScoreboardManager::getInstance()->addPlayerToDisplay($player);
+            Managers::SCOREBOARD()->addPlayerToDisplay($player);
         }
 
-        CosmeticsManager::getInstance()->savePlayerSkin($playerName, $player->getSkin());
-        CosmeticsManager::getInstance()->updatePlayerCosmeticsInfos($player);
+        Managers::COSMETICS()->savePlayerSkin($playerName, $player->getSkin());
+        Managers::COSMETICS()->updatePlayerCosmeticsInfos($player);
 
         foreach ($player->getAllEquippedCosmetics() as $cosmeticType => $cosmeticInfos) {
             if ($cosmeticInfos) {
-                CosmeticsManager::getInstance()->applyPlayerCosmetic($player, $cosmeticInfos["category"], $cosmeticInfos["cosmetic"], $cosmeticType);
+                Managers::COSMETICS()->applyPlayerCosmetic($player, $cosmeticInfos["category"], $cosmeticInfos["cosmetic"], $cosmeticType);
             }
         }
 
         if($player->hasPlayedBefore()) {
-            $event->setJoinMessage(str_replace("{player}", $playerName, ConfigManager::getInstance()->getNested("messages.join")));
+            $event->setJoinMessage(str_replace("{player}", $playerName, Managers::CONFIG()->getNested("messages.join")));
         }else{
-            $player->sendMessage(str_replace("{player}", $playerName, ConfigManager::getInstance()->getNested("messages.first-join-private")));
-            $event->setJoinMessage(str_replace("{player}", $playerName, ConfigManager::getInstance()->getNested("messages.first-join-general")));
+            $player->sendMessage(str_replace("{player}", $playerName, Managers::CONFIG()->getNested("messages.first-join-private")));
+            $event->setJoinMessage(str_replace("{player}", $playerName, Managers::CONFIG()->getNested("messages.first-join-general")));
         }
     }
 }

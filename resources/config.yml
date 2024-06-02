@@ -1,3 +1,14 @@
+database:
+  type: mysql
+
+  mysql:
+    host: 127.0.0.1
+    username: root
+    password: ""
+    schema: your_schema
+
+  worker-limit: 2
+
 vote-key: "ansLgUIsaVHjV3ssgcO1jSnBTrc4wt8WsS"
 
 webhooks:

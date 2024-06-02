@@ -2,35 +2,34 @@
 
 namespace Olympia\Kitpvp\menu\forms;
 
-use Olympia\Kitpvp\libs\Vecnavium\FormsUI\CustomForm;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\ModerationManager;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\Vecnavium\FormsUI\CustomForm;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\WebhookManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
 use pocketmine\player\Player;
 
 class ReportForm extends Form
 {
-    public static function sendBaseMenu(OlympiaPlayer $player, ...$infos): void
+    public static function sendBaseMenu(Session $player, ...$infos): void
     {
-        $form = new CustomForm(function (OlympiaPlayer $player, array $data = null) {
+        $form = new CustomForm(function (Session $player, array $data = null) {
 
             if($data !== null) {
 
                 if ($data[1] !== "") {
 
-                    $reported = ModerationManager::getInstance()->getPlayerReportList($player->getName())[$data[0]];
+                    $reported = Managers::MODERATION()->getPlayerReportList($player->getName())[$data[0]];
                     $reason = $data[1];
 
-                    WebhookManager::getInstance()->sendMessage("Report de {$player->getName()}", "**Joueur** : $reported\n**Raison** : $reason", WebhookManager::CHANNEL_REPORT);
+                    Managers::WEBHOOK()->sendMessage("Report de {$player->getName()}", "**Joueur** : $reported\n**Raison** : $reason", WebhookManager::CHANNEL_REPORT);
 
-                    $player->sendMessage(ConfigManager::getInstance()->getNested("messages.report"));
+                    $player->sendMessage(Managers::CONFIG()->getNested("messages.report"));
                 }else{
-                    $player->sendMessage(ConfigManager::getInstance()->getNested("messages.report-reason-empty"));
+                    $player->sendMessage(Managers::CONFIG()->getNested("messages.report-reason-empty"));
                 }
             }
 
-            ModerationManager::getInstance()->removePlayerReportList($player->getName());
+            Managers::MODERATION()->removePlayerReportList($player->getName());
 
             return true;
         });
@@ -44,7 +43,7 @@ class ReportForm extends Form
         })));
         unset($playerNames[array_search($basePlayer->getName(), $playerNames)]);
 
-        ModerationManager::getInstance()->setPlayerReportList($basePlayer->getName(), $playerNames);
+        Managers::MODERATION()->setPlayerReportList($basePlayer->getName(), $playerNames);
 
         $form->setTitle("§6§lReport");
 

@@ -3,7 +3,7 @@
 namespace Olympia\Kitpvp\commands\utils;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\CommandSender;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
@@ -23,7 +23,7 @@ class NightVisionCommand extends OlympiaCommand
             $effect = new EffectInstance(VanillaEffects::NIGHT_VISION(), 2147483646, 0, false);
             $sender->getEffects()->add($effect);
 
-            $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.nightvision"));
+            $sender->sendMessage(Managers::CONFIG()->getNested("messages.nightvision"));
         }else{
             $this->sendNotPlayerMessage($sender);
         }

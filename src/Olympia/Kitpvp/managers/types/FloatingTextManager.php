@@ -2,39 +2,36 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
+use Closure;
 use Olympia\Kitpvp\entities\objects\FloatingText;
-use Olympia\Kitpvp\managers\ManageLoader;
+use Olympia\Kitpvp\managers\Manager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\utils\Utils;
 use pocketmine\entity\Location;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\Server;
-use pocketmine\utils\SingletonTrait;
-use Closure;
 
-final class FloatingTextManager extends ManageLoader
+final class FloatingTextManager extends Manager
 {
-    use SingletonTrait;
-
     /** @var FloatingText[] $floatingText */
     private array $floatingText = [];
 
     private string $world;
 
-    public function onInit(): void
+    public function onLoad(): void
     {
-        $this->world = ConfigManager::getInstance()->getNested("spawn.world");
+        $this->world = Managers::CONFIG()->getNested("spawn.world");
         $this->spawnAllFloatingTexts();
     }
 
     public function onDisable(): void
     {
         $this->deleteAllFloatingTexts();
-        parent::onDisable();
     }
 
     public function spawnAllFloatingTexts(): void
     {
-        $config = ConfigManager::getInstance()->get("floating-text");
+        $config = Managers::CONFIG()->get("floating-text");
         $posTopMoney = $config["top-money"];
         $posTopKill = $config["top-kill"];
         $posTopDeath = $config["top-death"];
@@ -43,14 +40,14 @@ final class FloatingTextManager extends ManageLoader
 
         $this->createFloatingText(
             $this->getLocationByCoordinates($posTopMoney["x"], $posTopMoney["y"], $posTopMoney["z"]),
-            ConfigManager::getInstance()->getNested("leaderboards.money.title"),
+            Managers::CONFIG()->getNested("leaderboards.money.title"),
             function (FloatingText $entity) {
 
                 /** @var MoneyManager $this */
                 $moneyData = $this->getPlayersMoneyData();
                 arsort($moneyData);
 
-                $nametag = ConfigManager::getInstance()->getNested("leaderboards.money.title");
+                $nametag = Managers::CONFIG()->getNested("leaderboards.money.title");
                 $top = 1;
                 foreach ($moneyData as $player => $money) {
 
@@ -59,110 +56,110 @@ final class FloatingTextManager extends ManageLoader
                     $nametag .= "\n" . str_replace(
                         ["{top}", "{player}", "{money}"],
                         [$top, $player, $money],
-                        ConfigManager::getInstance()->getNested("leaderboards.money.line")
+                        Managers::CONFIG()->getNested("leaderboards.money.line")
                     );
                     $top++;
                 }
                 $entity->setNameTag($nametag);
             },
             20*60,
-            MoneyManager::getInstance()
+            Managers::MONEY()
         );
 
         $this->createFloatingText(
             $this->getLocationByCoordinates($posTopKill["x"], $posTopKill["y"], $posTopKill["z"]),
-            ConfigManager::getInstance()->getNested("leaderboards.kill.title"),
+            Managers::CONFIG()->getNested("leaderboards.kill.title"),
             function (FloatingText $entity) {
 
                 /** @var StatsManager $this */
                 $killLeaderboard = $this->getLeaderboard($this::STATS_KILL);
 
-                $nametag = ConfigManager::getInstance()->getNested("leaderboards.kill.title");
+                $nametag = Managers::CONFIG()->getNested("leaderboards.kill.title");
                 $top = 1;
                 foreach ($killLeaderboard as $player => $kill) {
                     $nametag .= "\n" . str_replace(
                         ["{top}", "{player}", "{kill}"],
                         [$top, $player, $kill],
-                        ConfigManager::getInstance()->getNested("leaderboards.kill.line")
+                        Managers::CONFIG()->getNested("leaderboards.kill.line")
                     );
                     $top++;
                 }
                 $entity->setNameTag($nametag);
             },
             20*60,
-            StatsManager::getInstance()
+            Managers::STATS()
         );
 
         $this->createFloatingText(
             $this->getLocationByCoordinates($posTopDeath["x"], $posTopDeath["y"], $posTopDeath["z"]),
-            ConfigManager::getInstance()->getNested("leaderboards.death.title"),
+            Managers::CONFIG()->getNested("leaderboards.death.title"),
             function (FloatingText $entity) {
 
                 /** @var StatsManager $this */
                 $deathLeaderboard = $this->getLeaderboard($this::STATS_DEATH);
 
-                $nametag = ConfigManager::getInstance()->getNested("leaderboards.death.title");
+                $nametag = Managers::CONFIG()->getNested("leaderboards.death.title");
                 $top = 1;
                 foreach ($deathLeaderboard as $player => $death) {
                     $nametag .= "\n" . str_replace(
                         ["{top}", "{player}", "{death}"],
                         [$top, $player, $death],
-                        ConfigManager::getInstance()->getNested("leaderboards.death.line")
+                        Managers::CONFIG()->getNested("leaderboards.death.line")
                     );
                     $top++;
                 }
                 $entity->setNameTag($nametag);
             },
             20*60,
-            StatsManager::getInstance()
+            Managers::STATS()
         );
 
         $this->createFloatingText(
             $this->getLocationByCoordinates($posTopKillstreak["x"], $posTopKillstreak["y"], $posTopKillstreak["z"]),
-            ConfigManager::getInstance()->getNested("leaderboards.killstreak.title"),
+            Managers::CONFIG()->getNested("leaderboards.killstreak.title"),
             function (FloatingText $entity) {
 
                 /** @var StatsManager $this */
                 $killstreakLeaderboard = $this->getLeaderboard($this::STATS_KILLSTREAK);
 
-                $nametag = ConfigManager::getInstance()->getNested("leaderboards.killstreak.title");
+                $nametag = Managers::CONFIG()->getNested("leaderboards.killstreak.title");
                 $top = 1;
                 foreach ($killstreakLeaderboard as $player => $killstreak) {
                     $nametag .= "\n" . str_replace(
                         ["{top}", "{player}", "{killstreak}"],
                         [$top, $player, $killstreak],
-                        ConfigManager::getInstance()->getNested("leaderboards.killstreak.line")
+                        Managers::CONFIG()->getNested("leaderboards.killstreak.line")
                     );
                     $top++;
                 }
                 $entity->setNameTag($nametag);
             },
             20*60,
-            StatsManager::getInstance()
+            Managers::STATS()
         );
 
         $this->createFloatingText(
             $this->getLocationByCoordinates($posTopNerd["x"], $posTopNerd["y"], $posTopNerd["z"]),
-            ConfigManager::getInstance()->getNested("leaderboards.nerd.title"),
+            Managers::CONFIG()->getNested("leaderboards.nerd.title"),
             function (FloatingText $entity) {
 
                 /** @var StatsManager $this */
                 $nerdLeaderboard = $this->getLeaderboard($this::STATS_NERD);
 
-                $nametag = ConfigManager::getInstance()->getNested("leaderboards.nerd.title");
+                $nametag = Managers::CONFIG()->getNested("leaderboards.nerd.title");
                 $top = 1;
                 foreach ($nerdLeaderboard as $player => $nerd) {
                     $nametag .= "\n" . str_replace(
                         ["{top}", "{player}", "{nerd}"],
                         [$top, $player, Utils::durationToShortString($nerd)],
-                        ConfigManager::getInstance()->getNested("leaderboards.nerd.line")
+                        Managers::CONFIG()->getNested("leaderboards.nerd.line")
                     );
                     $top++;
                 }
                 $entity->setNameTag($nametag);
             },
             20*60,
-            StatsManager::getInstance()
+            Managers::STATS()
         );
     }
 

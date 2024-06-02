@@ -2,23 +2,20 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
+use DateTime;
+use DateTimeZone;
 use Exception;
 use JsonException;
-use DateTimeZone;
-use DateTime;
-use Olympia\Kitpvp\Core;
-use Olympia\Kitpvp\managers\ManageLoader;
+use Olympia\Kitpvp\Loader;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 use pocketmine\Server;
 use pocketmine\utils\Config;
-use pocketmine\utils\SingletonTrait;
 
-final class HdvManager extends ManageLoader
+final class HdvManager extends Manager
 {
-    use SingletonTrait;
-
     public array $purchasableItems = [];
     private int $totalPurchasableItemsCount = 0;
 
@@ -26,11 +23,11 @@ final class HdvManager extends ManageLoader
 
     /**
      */
-    public function onInit(): void
+    public function onLoad(): void
     {
         try {
-            @mkdir(Core::getInstance()->getDataFolder() . "/data/");
-            $this->config = (new Config(Core::getInstance()->getDataFolder() . $this->getHdvFile(), Config::JSON))->getAll();
+            @mkdir(Loader::getInstance()->getDataFolder() . "/data/");
+            $this->config = (new Config(Loader::getInstance()->getDataFolder() . $this->getHdvFile(), Config::JSON))->getAll();
             $this->purchasableItems = $this->getHdvConfig();
 
             foreach ($this->purchasableItems as $seller => $items) {
@@ -52,7 +49,6 @@ final class HdvManager extends ManageLoader
     public function onDisable(): void
     {
         $this->saveAllHdv();
-        parent::onDisable();
     }
 
     public function getPurchasableItems(int $page): array
@@ -178,7 +174,7 @@ final class HdvManager extends ManageLoader
      */
     public function saveAllHdv(): void
     {
-        $config = new Config(Core::getInstance()->getDataFolder() . $this->getHdvFile(), Config::JSON);
+        $config = new Config(Loader::getInstance()->getDataFolder() . $this->getHdvFile(), Config::JSON);
         $config->setAll($this->purchasableItems);
         $config->save();
     }

@@ -2,18 +2,15 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
-use Olympia\Kitpvp\managers\ManageLoader;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\Server;
-use pocketmine\utils\SingletonTrait;
 
-final class MoneyManager extends ManageLoader
+final class MoneyManager extends Manager
 {
-    use SingletonTrait;
-
     private array $playersMoneyData;
 
-    public function onInit(): void
+    public function onLoad(): void
     {
         $moneyData = [];
         $path = Server::getInstance()->getDataPath() . "/players";
@@ -105,7 +102,7 @@ final class MoneyManager extends ManageLoader
     {
         $name = strtolower($name);
         if(!is_null($player = Server::getInstance()->getPlayerExact($name))) {
-            /** @var OlympiaPlayer $player */
+            /** @var Session $player */
             $this->playersMoneyData[$name] = $player->getMoney();
         }else{
             $this->playersMoneyData[$name] = $this->getOfflinePlayerMoney($name);

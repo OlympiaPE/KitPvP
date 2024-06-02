@@ -3,7 +3,7 @@
 namespace Olympia\Kitpvp\commands\stats;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\StatsManager;
 use Olympia\Kitpvp\utils\Utils;
 use pocketmine\command\CommandSender;
@@ -17,8 +17,8 @@ class TopnerdCommand extends OlympiaCommand
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        $messages = ConfigManager::getInstance()->getNested("leaderboards.nerd");
-        $nerdLeaderboard = StatsManager::getInstance()->getLeaderboard(StatsManager::STATS_NERD);
+        $messages = Managers::CONFIG()->getNested("leaderboards.nerd");
+        $nerdLeaderboard = Managers::STATS()->getLeaderboard(StatsManager::STATS_NERD);
 
         $message = $messages["title"];
         $top = 1;

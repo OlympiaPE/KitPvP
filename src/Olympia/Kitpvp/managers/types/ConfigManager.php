@@ -3,22 +3,19 @@
 namespace Olympia\Kitpvp\managers\types;
 
 use Exception;
-use Olympia\Kitpvp\Core;
-use Olympia\Kitpvp\managers\ManageLoader;
-use pocketmine\utils\SingletonTrait;
+use Olympia\Kitpvp\Loader;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\utils\Utils;
 
-final class ConfigManager extends ManageLoader
+final class ConfigManager extends Manager
 {
-    use SingletonTrait;
-
     private array $configCache;
 
     private array $nestedCache = [];
 
-    public function onInit(): void
+    public function onLoad(): void
     {
-        $plugin = Core::getInstance();
+        $plugin = Loader::getInstance();
         $this->configCache = $plugin->getConfig()->getAll();
     }
 
@@ -95,12 +92,12 @@ final class ConfigManager extends ManageLoader
     {
         try {
 
-            $config = Core::getInstance()->getConfig();
+            $config = Loader::getInstance()->getConfig();
             $config->setAll($this->getAll());
             $config->save();
         }catch (Exception $exception) {
 
-            $this->getOwningPlugin()->getLogger()->alert("Erreur lors de la sauvegarde de la config : {$exception->getMessage()}");
+            Loader::getInstance()->getLogger()->alert("Erreur lors de la sauvegarde de la config : {$exception->getMessage()}");
         }
     }
 }

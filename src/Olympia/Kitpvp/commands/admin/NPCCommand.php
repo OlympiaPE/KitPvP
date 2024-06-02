@@ -4,10 +4,9 @@ namespace Olympia\Kitpvp\commands\admin;
 
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\NPCManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 
 class NPCCommand extends OlympiaCommand
@@ -23,7 +22,7 @@ class NPCCommand extends OlympiaCommand
      */
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        if ($sender instanceof OlympiaPlayer) {
+        if ($sender instanceof Session) {
 
             switch ($args[0] ?? null) {
 
@@ -32,11 +31,11 @@ class NPCCommand extends OlympiaCommand
                     if (isset($args[1])) {
 
                         $name = $args[1];
-                        $id = NPCManager::getInstance()->createNpc($sender, $name);
+                        $id = Managers::NPC()->createNpc($sender, $name);
                         $sender->sendMessage(str_replace(
                             ["{name}", "{id}"],
                             [$name, $id],
-                            ConfigManager::getInstance()->getNested("messages.npc-create")
+                            Managers::CONFIG()->getNested("messages.npc-create")
                         ));
                     }else{
                         $this->sendUsageMessage($sender);
@@ -49,16 +48,16 @@ class NPCCommand extends OlympiaCommand
 
                         $id = $args[1];
 
-                        if (is_int($id) && NPCManager::getInstance()->getNpcExists($id)) {
+                        if (is_int($id) && Managers::NPC()->getNpcExists($id)) {
 
-                            NPCManager::getInstance()->deleteNpc($id);
+                            Managers::NPC()->deleteNpc($id);
                             $sender->sendMessage(str_replace(
                                 "{id}",
                                 $id,
-                                ConfigManager::getInstance()->getNested("messages.npc-delete")
+                                Managers::CONFIG()->getNested("messages.npc-delete")
                             ));
                         }else{
-                            $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.npc-not-exist"));
+                            $sender->sendMessage(Managers::CONFIG()->getNested("messages.npc-not-exist"));
                         }
                     }else{
                         $this->sendUsageMessage($sender);
@@ -67,8 +66,8 @@ class NPCCommand extends OlympiaCommand
 
                 case "id":
 
-                    NPCManager::getInstance()->addPlayerWantId($sender->getName());
-                    $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.npc-id"));
+                    Managers::NPC()->addPlayerWantId($sender->getName());
+                    $sender->sendMessage(Managers::CONFIG()->getNested("messages.npc-id"));
                 break;
 
                 case "addcmd":
@@ -76,20 +75,20 @@ class NPCCommand extends OlympiaCommand
                     if (isset($args[1]) && isset($args[2])) {
 
                         $id = $args[1];
-                        if (is_int($id) && NPCManager::getInstance()->getNpcExists($id)) {
+                        if (is_int($id) && Managers::NPC()->getNpcExists($id)) {
 
                             $command = "";
                             for ($i = 2; $i < count($args); $i++) {
                                 $command .= $args[$i] . " ";
                             }
-                            NPCManager::getInstance()->addNpcCommand($id, $command);
+                            Managers::NPC()->addNpcCommand($id, $command);
                             $sender->sendMessage(str_replace(
                                 "{id}",
                                 $id,
-                                ConfigManager::getInstance()->getNested("messages.npc-addcmd")
+                                Managers::CONFIG()->getNested("messages.npc-addcmd")
                             ));
                         }else{
-                            $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.npc-not-exist"));
+                            $sender->sendMessage(Managers::CONFIG()->getNested("messages.npc-not-exist"));
                         }
                     }else{
                         $this->sendUsageMessage($sender);
@@ -106,6 +105,6 @@ class NPCCommand extends OlympiaCommand
 
     publiC function sendHelpMessage(CommandSender $sender): void
     {
-        $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.npc-help"));
+        $sender->sendMessage(Managers::CONFIG()->getNested("messages.npc-help"));
     }
 }

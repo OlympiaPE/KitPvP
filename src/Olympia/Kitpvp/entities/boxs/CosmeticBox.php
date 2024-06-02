@@ -2,6 +2,7 @@
 
 namespace Olympia\Kitpvp\entities\boxs;
 
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\BoxsManager;
 use pocketmine\entity\Location;
 use pocketmine\nbt\tag\CompoundTag;
@@ -26,6 +27,6 @@ class CosmeticBox extends Box
 
     public function getKey(): string
     {
-        return BoxsManager::getInstance()->getKeyName(BoxsManager::BOX_COSMETIC);
+        return Managers::BOXS()->getKeyName(BoxsManager::BOX_COSMETIC);
     }
 }

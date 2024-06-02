@@ -1,7 +1,9 @@
 name: Olympia-Kitpvp
-version: 1.0.0
+version: 1.0.0+dev
 api: 5.0.0
-main: Olympia\Kitpvp\Core
-author: RemBog
+main: Olympia\Kitpvp\Loader
+authors:
+  - RemBog
+  - OlympiaPE
 depend:
   - RankSystem

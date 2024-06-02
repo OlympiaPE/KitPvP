@@ -2,22 +2,19 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
-use Olympia\Kitpvp\entities\npc\NPC;
-use Olympia\Kitpvp\managers\ManageLoader;
-use pocketmine\player\Player;
 use JsonException;
-use pocketmine\utils\SingletonTrait;
+use Olympia\Kitpvp\entities\npc\NPC;
+use Olympia\Kitpvp\managers\Manager;
+use pocketmine\player\Player;
 
-final class NPCManager extends ManageLoader
+final class NPCManager extends Manager
 {
-    use SingletonTrait;
-
     /** @var NPC[] $npcList */
     private array $npcList;
 
     private array $wantId = [];
 
-    public function onInit(): void
+    public function onLoad(): void
     {
     }
 

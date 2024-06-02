@@ -2,12 +2,12 @@
 
 namespace Olympia\Kitpvp\tournament;
 
-use Olympia\Kitpvp\Core;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\Loader;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\BoxsManager;
-use Olympia\Kitpvp\managers\types\ConfigManager;
 use Olympia\Kitpvp\managers\types\TournamentManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use Olympia\Kitpvp\utils\Utils;
+use Olympia\Kitpvp\managers\types\Utils;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\item\VanillaItems;
@@ -38,12 +38,12 @@ final class Tournament
     public function __construct(string $hoster, string $type)
     {
         $this->type = $type;
-        $this->startIn = microtime(true) + ConfigManager::getInstance()->getNested("tournament.delay-before-starting");
+        $this->startIn = microtime(true) + Managers::CONFIG()->getNested("tournament.delay-before-starting");
 
         Server::getInstance()->broadcastMessage(str_replace(
             ["{type}", "{hoster}"],
             [$type, $hoster],
-            ConfigManager::getInstance()->getNested("messages.tournament-create")
+            Managers::CONFIG()->getNested("messages.tournament-create")
         ));
 
         $this->handle();
@@ -51,7 +51,7 @@ final class Tournament
 
     public function handle(): void
     {
-        $this->taskHandler = Core::getInstance()->getScheduler()->scheduleRepeatingTask(new ClosureTask(function() {
+        $this->taskHandler = Loader::getInstance()->getScheduler()->scheduleRepeatingTask(new ClosureTask(function() {
 
             if (!$this->isStarted()) {
 
@@ -67,7 +67,7 @@ final class Tournament
                             $this->broadcastMessageToPlayers($players, str_replace(
                                 "{time}",
                                 Utils::durationToString($this->getStartIn()),
-                                ConfigManager::getInstance()->getNested("messages.tournament-start-in")
+                                Managers::CONFIG()->getNested("messages.tournament-start-in")
                             ));
                             $this->broadcastSoundToPlayers($players, new ClickSound());
                             break;
@@ -89,7 +89,7 @@ final class Tournament
                             $this->broadcastMessageToPlayers($players, str_replace(
                                 "{time}",
                                 Utils::durationToString($this->getStartIn()),
-                                ConfigManager::getInstance()->getNested("messages.tournament-start-in")
+                                Managers::CONFIG()->getNested("messages.tournament-start-in")
                             ));
                             $this->broadcastSoundToPlayers($players, new ClickSound());
                             break;
@@ -121,7 +121,7 @@ final class Tournament
                         $this->broadcastMessageToPlayers($this->getPlayers(true), str_replace(
                             ["{winner}", "{loser}"],
                             [$winnerName, $loserName],
-                            ConfigManager::getInstance()->getNested("messages.tournament-fight-ended")
+                            Managers::CONFIG()->getNested("messages.tournament-fight-ended")
                         ));
 
                         $this->fighters = [];
@@ -130,12 +130,12 @@ final class Tournament
                         $this->fightWinner = null;
                         unset($this->players[array_search($loserName, $this->players)]);
 
-                        if ($winner instanceof OlympiaPlayer) {
+                        if ($winner instanceof Session) {
                             $this->teleportPlayerToTournament($winner);
                             $this->clearPlayer($winner);
                         }
 
-                        if ($loser instanceof OlympiaPlayer) {
+                        if ($loser instanceof Session) {
                             $this->teleportPlayerToTournament($loser);
                             $this->clearPlayer($loser);
                         }
@@ -147,7 +147,7 @@ final class Tournament
 
     public function start(): void
     {
-        if (count($this->getPlayersNames()) >= ConfigManager::getInstance()->getNested("tournament.min-players")) {
+        if (count($this->getPlayersNames()) >= Managers::CONFIG()->getNested("tournament.min-players")) {
 
             $this->setStarted();
 
@@ -160,7 +160,7 @@ final class Tournament
             }
         }else{
 
-            $this->broadcastMessageToPlayers($this->getPlayers(), ConfigManager::getInstance()->getNested("messages.tournament-not-enough-players"));
+            $this->broadcastMessageToPlayers($this->getPlayers(), Managers::CONFIG()->getNested("messages.tournament-not-enough-players"));
             $this->end(false);
         }
     }
@@ -168,7 +168,7 @@ final class Tournament
     public function end(bool $hasWinner = true): void
     {
         $this->taskHandler->cancel();
-        TournamentManager::getInstance()->removeTournament();
+        Managers::TOURNAMENT()->removeTournament();
 
         foreach ($this->getPlayers(true) as $player) {
 
@@ -182,14 +182,14 @@ final class Tournament
             $winnerName = end($this->players);
 
             $winner = Server::getInstance()->getPlayerExact($winnerName);
-            if ($winner instanceof OlympiaPlayer) {
-                BoxsManager::getInstance()->giveKey($winner, BoxsManager::BOX_EVENT);
+            if ($winner instanceof Session) {
+                Managers::BOXS()->giveKey($winner, BoxsManager::BOX_EVENT);
             }
 
             $this->broadcastMessageToPlayers($this->getPlayers(true), str_replace(
                 "{winner}",
                 $winnerName,
-                ConfigManager::getInstance()->getNested("messages.tournament-ended")
+                Managers::CONFIG()->getNested("messages.tournament-ended")
             ));
         }
     }
@@ -206,10 +206,10 @@ final class Tournament
             40
         );
 
-        $scheduler = Core::getInstance()->getScheduler();
-        /** @var OlympiaPlayer $fighter1 */
+        $scheduler = Loader::getInstance()->getScheduler();
+        /** @var \Olympia\Kitpvp\entities\Session $fighter1 */
         $fighter1 = Server::getInstance()->getPlayerExact($fighters[0]);
-        /** @var OlympiaPlayer $fighter2 */
+        /** @var Session $fighter2 */
         $fighter2 = Server::getInstance()->getPlayerExact($fighters[1]);
         $scheduler->scheduleDelayedTask(new ClosureTask(function () use ($scheduler, $fighter1, $fighter2) {
 
@@ -219,8 +219,8 @@ final class Tournament
             }
 
             $baseKey = "tournament.type." . $this->getType();
-            $spawnPositions = ConfigManager::getInstance()->getNested("$baseKey.spawn-positions");
-            $worldName = ConfigManager::getInstance()->getNested("$baseKey.world");
+            $spawnPositions = Managers::CONFIG()->getNested("$baseKey.spawn-positions");
+            $worldName = Managers::CONFIG()->getNested("$baseKey.world");
             $world = Server::getInstance()->getWorldManager()->getWorldByName($worldName);
 
             $fighter1->teleport(new Position(
@@ -275,7 +275,7 @@ final class Tournament
                             $fighter->sendTitle("§eBonne chance !", 5, 15, 5);
                             $fighter->setHealth(20);
                             $fighter->setGamemode(GameMode::ADVENTURE);
-                            TournamentManager::getInstance()->givePlayerTournamentKit($fighter, $this->getType());
+                            Managers::TOURNAMENT()->givePlayerTournamentKit($fighter, $this->getType());
                         }
                     }), 20);
                 }), 20);
@@ -283,7 +283,7 @@ final class Tournament
         }), 40);
     }
 
-    public function cancelStartFight(OlympiaPlayer $fighter1, OlympiaPlayer $fighter2): void
+    public function cancelStartFight(Session $fighter1, Session $fighter2): void
     {
         foreach ([$fighter1, $fighter2] as $fighter) {
             if ($fighter->isOnline() && $fighter->isAlive()) {
@@ -294,7 +294,7 @@ final class Tournament
     }
 
     /**
-     * @return OlympiaPlayer[]
+     * @return \Olympia\Kitpvp\entities\Session[]
      */
     public function getNextFighters(): array
     {
@@ -334,12 +334,12 @@ final class Tournament
         return $this->type;
     }
 
-    public function addPlayer(OlympiaPlayer $player): void
+    public function addPlayer(Session $player): void
     {
         $this->broadcastMessageToPlayers($this->getPlayers(), str_replace(
             "{player}",
             $player->getName(),
-            ConfigManager::getInstance()->getNested("messages.tournament-join")
+            Managers::CONFIG()->getNested("messages.tournament-join")
         ));
 
         $this->players[] = $player->getName();
@@ -350,10 +350,10 @@ final class Tournament
         $player->getInventory()->setItem(4, $leaveItem);
         $player->setGamemode(GameMode::ADVENTURE);
         $player->setInTournament();
-        $player->sendMessage(ConfigManager::getInstance()->getNested("messages.tournament-join-player"));
+        $player->sendMessage(Managers::CONFIG()->getNested("messages.tournament-join-player"));
     }
 
-    public function removePlayer(OlympiaPlayer $player, bool $causeDisconnect = false): void
+    public function removePlayer(Session $player, bool $causeDisconnect = false): void
     {
         if (in_array($player->getName(), $this->getPlayersNames())) {
             unset($this->players[array_search($player->getName(), $this->players)]);
@@ -368,14 +368,14 @@ final class Tournament
         $this->broadcastMessageToPlayers($this->getPlayers(true), str_replace(
             "{player}",
             $player->getName(),
-            ConfigManager::getInstance()->getNested("messages.tournament-leave")
+            Managers::CONFIG()->getNested("messages.tournament-leave")
         ));
 
         if (!$causeDisconnect) {
 
             $player->setInTournament(false);
             $this->teleportPlayerToSpawn($player);
-            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.tournament-leave-player"));
+            $player->sendMessage(Managers::CONFIG()->getNested("messages.tournament-leave-player"));
         }
     }
 
@@ -385,7 +385,7 @@ final class Tournament
     }
 
     /**
-     * @return OlympiaPlayer[]
+     * @return \Olympia\Kitpvp\entities\Session[]
      */
     public function getPlayers(bool $includeEliminated = false): array
     {
@@ -393,14 +393,14 @@ final class Tournament
         $server = Server::getInstance();
         foreach ($this->getPlayersNames() as $playerName) {
             $player = $server->getPlayerExact($playerName);
-            if ($player instanceof OlympiaPlayer) {
+            if ($player instanceof Session) {
                 $players[$playerName] = $player;
             }
         }
         if ($includeEliminated) {
             foreach ($this->getEliminatedNames() as $eliminatedName) {
                 $eliminated = $server->getPlayerExact($eliminatedName);
-                if ($eliminated instanceof OlympiaPlayer) {
+                if ($eliminated instanceof Session) {
                     $players[$eliminatedName] = $eliminated;
                 }
             }
@@ -436,11 +436,11 @@ final class Tournament
 
     // USEFUL FUNCTIONS
 
-    public function teleportPlayerToTournament(OlympiaPlayer $player): void
+    public function teleportPlayerToTournament(Session $player): void
     {
         $baseKey = "tournament.type." . $this->getType();
-        $positions = ConfigManager::getInstance()->getNested("$baseKey.spawn-positions.player");
-        $worldName = ConfigManager::getInstance()->getNested("$baseKey.world");
+        $positions = Managers::CONFIG()->getNested("$baseKey.spawn-positions.player");
+        $worldName = Managers::CONFIG()->getNested("$baseKey.world");
         $x = (int)$positions["x"] + 0.5;
         $y = (int)$positions["y"];
         $z = (int)$positions["z"] + 0.5;
@@ -449,9 +449,9 @@ final class Tournament
         $player->teleport($position);
     }
 
-    public function teleportPlayerToSpawn(OlympiaPlayer $player): void
+    public function teleportPlayerToSpawn(Session $player): void
     {
-        $spawnInfos = ConfigManager::getInstance()->get("spawn");
+        $spawnInfos = Managers::CONFIG()->get("spawn");
         $x = (int)$spawnInfos["x"];
         $y = (int)$spawnInfos["y"];
         $z = (int)$spawnInfos["z"];
@@ -461,7 +461,7 @@ final class Tournament
     }
 
     /**
-     * @param OlympiaPlayer[] $players
+     * @param \Olympia\Kitpvp\entities\Session[] $players
      * @param string $message
      * @return void
      */
@@ -473,7 +473,7 @@ final class Tournament
     }
 
     /**
-     * @param OlympiaPlayer[] $players
+     * @param \Olympia\Kitpvp\entities\Session[] $players
      * @param string $title
      * @param string $subTitle
      * @param int $stay
@@ -487,7 +487,7 @@ final class Tournament
     }
 
     /**
-     * @param OlympiaPlayer[] $players
+     * @param \Olympia\Kitpvp\entities\Session[] $players
      * @param Sound $sound
      * @return void
      */
@@ -498,7 +498,7 @@ final class Tournament
         }
     }
 
-    public function clearPlayer(OlympiaPlayer $player): void
+    public function clearPlayer(Session $player): void
     {
         $player->getInventory()->clearAll();
         $player->getArmorInventory()->clearAll();
@@ -514,14 +514,14 @@ final class Tournament
 
     // FUNCTIONS FOR LISTENERS
 
-    public function isDamageable(OlympiaPlayer $player): bool
+    public function isDamageable(Session $player): bool
     {
         return in_array($player->getName(), $this->fighters);
     }
 
     public function getKbInfos(): array
     {
-        return ConfigManager::getInstance()->getNested("tournament.type.{$this->getType()}.kb");
+        return Managers::CONFIG()->getNested("tournament.type.{$this->getType()}.kb");
     }
 
     public function setFightWinner(string $fightWinner): void

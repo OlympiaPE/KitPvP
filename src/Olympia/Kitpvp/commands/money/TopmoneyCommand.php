@@ -3,8 +3,7 @@
 namespace Olympia\Kitpvp\commands\money;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\MoneyManager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\CommandSender;
 
 class TopmoneyCommand extends OlympiaCommand
@@ -16,8 +15,8 @@ class TopmoneyCommand extends OlympiaCommand
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        $messages = ConfigManager::getInstance()->getNested("leaderboards.money");
-        $moneyData = MoneyManager::getInstance()->getPlayersMoneyData();
+        $messages = Managers::CONFIG()->getNested("leaderboards.money");
+        $moneyData = Managers::MONEY()->getPlayersMoneyData();
         arsort($moneyData);
 
         $message = $messages["title"];

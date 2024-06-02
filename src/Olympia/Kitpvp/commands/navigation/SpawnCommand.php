@@ -3,7 +3,7 @@
 namespace Olympia\Kitpvp\commands\navigation;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\world\Position;
@@ -19,7 +19,7 @@ class SpawnCommand extends OlympiaCommand
     {
         if ($sender instanceof Player) {
 
-            $spawnInfos = ConfigManager::getInstance()->get("spawn");
+            $spawnInfos = Managers::CONFIG()->get("spawn");
             $world = $sender->getServer()->getWorldManager()->getWorldByName($spawnInfos["world"]);
 
             if ($world) {
@@ -30,9 +30,9 @@ class SpawnCommand extends OlympiaCommand
                 $position = new Position($x, $y, $z, $world);
 
                 $sender->teleport($position);
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.spawn"));
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.spawn"));
             }else{
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.player-encounters-error"));
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.player-encounters-error"));
             }
         }else{
             $this->sendNotPlayerMessage($sender);

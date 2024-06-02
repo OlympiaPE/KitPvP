@@ -3,8 +3,8 @@
 namespace Olympia\Kitpvp\commands\navigation;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
+use Olympia\Kitpvp\entities\Session;
 use Olympia\Kitpvp\menu\forms\ServeurForm;
-use Olympia\Kitpvp\player\OlympiaPlayer;
 use pocketmine\command\CommandSender;
 
 class ServeurCommand extends OlympiaCommand
@@ -16,7 +16,7 @@ class ServeurCommand extends OlympiaCommand
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        if ($sender instanceof OlympiaPlayer) {
+        if ($sender instanceof Session) {
             ServeurForm::sendBaseMenu($sender);
         }else{
             $this->sendNotPlayerMessage($sender);

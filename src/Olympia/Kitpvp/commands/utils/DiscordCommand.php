@@ -3,7 +3,7 @@
 namespace Olympia\Kitpvp\commands\utils;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\CommandSender;
 
 class DiscordCommand extends OlympiaCommand
@@ -15,6 +15,6 @@ class DiscordCommand extends OlympiaCommand
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.discord"));
+        $sender->sendMessage(Managers::CONFIG()->getNested("messages.discord"));
     }
 }

@@ -2,18 +2,17 @@
 
 namespace Olympia\Kitpvp\menu\forms;
 
-use Olympia\Kitpvp\libs\Vecnavium\FormsUI\CustomForm;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\ScoreboardManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\Vecnavium\FormsUI\CustomForm;
 
 class SettingsForm extends Form
 {
-    public static function sendBaseMenu(OlympiaPlayer $player, ...$infos): void
+    public static function sendBaseMenu(Session $player, ...$infos): void
     {
         $defaultSettings = $player->getSettings();
 
-        $form = new CustomForm(function (OlympiaPlayer $player, array $data = null) use ($defaultSettings) {
+        $form = new CustomForm(function (Session $player, array $data = null) use ($defaultSettings) {
 
             if($data !== null) {
 
@@ -30,15 +29,15 @@ class SettingsForm extends Form
                 if ($data[2] !== $defaultSettings["scoreboard"]) {
                     $newSettings["scoreboard"] = $data[2];
                     if ($data[2]) {
-                        ScoreboardManager::getInstance()->addPlayerToDisplay($player);
+                        Managers::SCOREBOARD()->addPlayerToDisplay($player);
                     }else{
-                        ScoreboardManager::getInstance()->removePlayerToDisplay($player);
-                        ScoreboardManager::getInstance()->remove($player);
+                        Managers::SCOREBOARD()->removePlayerToDisplay($player);
+                        Managers::SCOREBOARD()->remove($player);
                     }
                 }
 
                 $player->setSettings($newSettings);
-                $player->sendMessage(ConfigManager::getInstance()->getNested("messages.update-settings"));
+                $player->sendMessage(Managers::CONFIG()->getNested("messages.update-settings"));
             }
 
             return true;

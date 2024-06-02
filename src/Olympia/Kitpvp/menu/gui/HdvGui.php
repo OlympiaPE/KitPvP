@@ -2,15 +2,13 @@
 
 namespace Olympia\Kitpvp\menu\gui;
 
+use Closure;
 use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\transaction\InvMenuTransaction;
 use muqsit\invmenu\transaction\InvMenuTransactionResult;
 use muqsit\invmenu\type\InvMenuTypeIds;
-use Closure;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\HdvManager;
-use Olympia\Kitpvp\managers\types\MoneyManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\entities\Session;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 use pocketmine\player\Player;
@@ -31,7 +29,7 @@ class HdvGui
         $this->menu = InvMenu::create(InvMenuTypeIds::TYPE_DOUBLE_CHEST)
             ->setListener(function(InvMenuTransaction $transaction): InvMenuTransactionResult {
 
-                /** @var OlympiaPlayer $player */
+                /** @var Session $player */
                 $player = $transaction->getPlayer();
                 $item = $transaction->getItemClicked();
                 $sellerName = $item->getLore()[0] ?? null;
@@ -48,7 +46,7 @@ class HdvGui
                     case $slot < 36:
 
                         $sellerName = str_replace("§fVendeur : §6", "", $sellerName);
-                        if(HdvManager::getInstance()->isItemStillAvailable($sellerName, $item)) {
+                        if(Managers::HDV()->isItemStillAvailable($sellerName, $item)) {
 
                             $price = str_replace("§6", "", $price);
                             $price = (int)preg_replace("/[^0-9]/", "", $price);
@@ -56,13 +54,13 @@ class HdvGui
 
                                 if($player->getInventory()->canAddItem($item)) {
                                     $item->setLore([]);
-                                    HdvManager::getInstance()->removeItem($sellerName, $item);
+                                    Managers::HDV()->removeItem($sellerName, $item);
                                     if(!is_null($seller = Server::getInstance()->getPlayerExact($sellerName))) {
-                                        /** @var OlympiaPlayer $seller */
+                                        /** @var Session $seller */
                                         $seller->addMoney($price);
-                                        $seller->sendMessage(ConfigManager::getInstance()->getNested("messages.hdv-item-sell"));
+                                        $seller->sendMessage(Managers::CONFIG()->getNested("messages.hdv-item-sell"));
                                     }else{
-                                        MoneyManager::getInstance()->addOfflinePlayerMoney($sellerName, $price);
+                                        Managers::MONEY()->addOfflinePlayerMoney($sellerName, $price);
                                     }
 
                                     $player->removeMoney($price);
@@ -70,16 +68,16 @@ class HdvGui
                                     $player->sendMessage(str_replace(
                                         ["{item}", "{price}"],
                                         [$item->getName(), $price],
-                                        ConfigManager::getInstance()->getNested("messages.hdv-buy-item")
+                                        Managers::CONFIG()->getNested("messages.hdv-buy-item")
                                     ));
                                 }else{
-                                    $player->sendMessage(ConfigManager::getInstance()->getNested("messages.no-room-in-inventory"));
+                                    $player->sendMessage(Managers::CONFIG()->getNested("messages.no-room-in-inventory"));
                                 }
                             }else{
-                                $player->sendMessage(ConfigManager::getInstance()->getNested("messages.not-enough-money"));
+                                $player->sendMessage(Managers::CONFIG()->getNested("messages.not-enough-money"));
                             }
                         }else{
-                            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.hdv-item-unavailable"));
+                            $player->sendMessage(Managers::CONFIG()->getNested("messages.hdv-item-unavailable"));
                         }
                         $player->removeCurrentWindow();
                         break;
@@ -93,35 +91,35 @@ class HdvGui
 
                     case 50:
 
-                        if($this->page < HdvManager::getInstance()->getMaxPage()) {
+                        if($this->page < Managers::HDV()->getMaxPage()) {
                             $this->sendNextPage();
                         }
                         break;
 
                     case 53:
 
-                        if(!is_null($itemSerialized = HdvManager::getInstance()->getExpiredPlayerItem($player->getName()))) {
+                        if(!is_null($itemSerialized = Managers::HDV()->getExpiredPlayerItem($player->getName()))) {
                             $item = Item::nbtDeserialize(unserialize($itemSerialized));
                             if($player->getInventory()->canAddItem($item)) {
-                                HdvManager::getInstance()->removeItem($player->getName(), $item);
+                                Managers::HDV()->removeItem($player->getName(), $item);
                                 $player->getInventory()->addItem($item);
                                 $player->sendMessage(str_replace(
                                     "{item}",
                                     $item->getName(),
-                                    ConfigManager::getInstance()->getNested("messages.hdv-remove-unsold-item")
+                                    Managers::CONFIG()->getNested("messages.hdv-remove-unsold-item")
                                 ));
                             }else{
-                                $player->sendMessage(ConfigManager::getInstance()->getNested("messages.no-room-in-inventory"));
+                                $player->sendMessage(Managers::CONFIG()->getNested("messages.no-room-in-inventory"));
                             }
                         }else{
-                            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.hdv-no-unsold-item"));
+                            $player->sendMessage(Managers::CONFIG()->getNested("messages.hdv-no-unsold-item"));
                         }
                         $player->removeCurrentWindow();
                         break;
                 }
                 return $transaction->discard();
             })
-            ->setName("§l§6HDV §7Page $this->page/". HdvManager::getInstance()->getMaxPage());
+            ->setName("§l§6HDV §7Page $this->page/". Managers::HDV()->getMaxPage());
         $this->addUsefulItems();
         $this->addPurchasableItems($this->page);
     }
@@ -147,7 +145,7 @@ class HdvGui
     {
         $this->resetPurchasableItems();
         $this->addPurchasableItems($this->page);
-        $this->menu->setName("§l§6HDV §7Page $this->page/". HdvManager::getInstance()->getMaxPage());
+        $this->menu->setName("§l§6HDV §7Page $this->page/". Managers::HDV()->getMaxPage());
         $player = Server::getInstance()->getPlayerExact($this->player);
         if(!is_null($player)) {
             $this->send($player);
@@ -156,14 +154,14 @@ class HdvGui
 
     public function addUsefulItems(): void
     {
-        foreach (HdvManager::getInstance()->getUsefulItems($this->player) as $slot => $item) {
+        foreach (Managers::HDV()->getUsefulItems($this->player) as $slot => $item) {
             $this->menu->getInventory()->setItem($slot, $item);
         }
     }
 
     public function addPurchasableItems(int $page): void
     {
-        foreach (HdvManager::getInstance()->getPurchasableItems($page) as $slot => $item) {
+        foreach (Managers::HDV()->getPurchasableItems($page) as $slot => $item) {
             $this->menu->getInventory()->setItem($slot, $item);
         }
     }

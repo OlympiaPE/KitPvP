@@ -5,14 +5,12 @@ namespace Olympia\Kitpvp\managers\types;
 use CortexPE\DiscordWebhookAPI\Embed;
 use CortexPE\DiscordWebhookAPI\Message;
 use CortexPE\DiscordWebhookAPI\Webhook;
-use Olympia\Kitpvp\managers\ManageLoader;
-use pocketmine\utils\SingletonTrait;
 use Exception;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\managers\Manager;
 
-final class WebhookManager extends ManageLoader
+final class WebhookManager extends Manager
 {
-    use SingletonTrait;
-
     public const CHANNEL_REPORT = 0;
     public const CHANNEL_LOGS_COMMANDS = 1;
     public const CHANNEL_LOGS_SANCTIONS = 2;
@@ -21,9 +19,9 @@ final class WebhookManager extends ManageLoader
     private Webhook $webhookLogsCommands;
     private Webhook $webhookLogsSanctions;
 
-    public function onInit(): void
+    public function onLoad(): void
     {
-        $webhooks = ConfigManager::getInstance()->get("webhooks");
+        $webhooks = Managers::CONFIG()->get("webhooks");
         $this->webhookReport = new Webhook($webhooks["report"]);
         $this->webhookLogsCommands = new Webhook($webhooks["logs-commands"]);
         $this->webhookLogsSanctions = new Webhook($webhooks["logs-sanctions"]);

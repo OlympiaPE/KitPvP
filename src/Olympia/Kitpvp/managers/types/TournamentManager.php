@@ -2,27 +2,24 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
-use Olympia\Kitpvp\managers\ManageLoader;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Manager;
 use Olympia\Kitpvp\tournament\Tournament;
 use pocketmine\item\Armor;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\enchantment\VanillaEnchantments;
 use pocketmine\item\PotionType;
 use pocketmine\item\VanillaItems;
-use pocketmine\utils\SingletonTrait;
 
-final class TournamentManager extends ManageLoader
+final class TournamentManager extends Manager
 {
-    use SingletonTrait;
-
     public const TOURNAMENT_TYPE_NODEBUFF = "nodebuff";
     public const TOURNAMENT_TYPE_SUMO = "sumo";
     public const TOURNAMENT_TYPE_BRACKET = "bracket";
 
     private ?Tournament $tournament = null;
 
-    public function onInit(): void
+    public function onLoad(): void
     {
     }
 
@@ -31,7 +28,7 @@ final class TournamentManager extends ManageLoader
         return !is_null($this->tournament);
     }
 
-    public function createTournament(OlympiaPlayer $hoster, string $type): void
+    public function createTournament(Session $hoster, string $type): void
     {
         $this->tournament = new Tournament($hoster->getName(), $type);
     }
@@ -51,7 +48,7 @@ final class TournamentManager extends ManageLoader
         return (bool)$this->getTournament()?->isStarted();
     }
 
-    public function givePlayerTournamentKit(OlympiaPlayer $player, string $type): void
+    public function givePlayerTournamentKit(Session $player, string $type): void
     {
         switch ($type) {
 
