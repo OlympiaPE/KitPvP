@@ -30,6 +30,7 @@ use pocketmine\utils\RegistryTrait;
 use ReflectionClass;
 
 /**
+ * @method static WorldManager WORLD()
  * @method static ConfigManager CONFIG()
  * @method static DatabaseManager DATABASE()
  * @method static PermissionManager PERMISSION()
@@ -52,7 +53,6 @@ use ReflectionClass;
  * @method static TournamentManager TOURNAMENT()
  * @method static VoteManager VOTE()
  * @method static WebhookManager WEBHOOK()
- * @method static WorldManager WORLD()
  */
 class Managers
 {
