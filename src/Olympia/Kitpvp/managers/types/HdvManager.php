@@ -5,48 +5,38 @@ namespace Olympia\Kitpvp\managers\types;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use JsonException;
-use Olympia\Kitpvp\Loader;
 use Olympia\Kitpvp\managers\Manager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
-use pocketmine\Server;
-use pocketmine\utils\Config;
 
 final class HdvManager extends Manager
 {
     public array $purchasableItems = [];
     private int $totalPurchasableItemsCount = 0;
 
-    private array $config;
+    private array $hdvData;
 
     /**
      */
     public function onLoad(): void
     {
-        try {
-            @mkdir(Loader::getInstance()->getDataFolder() . "/data/");
-            $this->config = (new Config(Loader::getInstance()->getDataFolder() . $this->getHdvFile(), Config::JSON))->getAll();
-            $this->purchasableItems = $this->getHdvConfig();
+        $this->setRequireSaveOnDisable(true);
 
-            foreach ($this->purchasableItems as $seller => $items) {
-                foreach ($items as $itemProperties) {
-                    if(!$itemProperties["expired"]) {
-                        $this->totalPurchasableItemsCount += $this->getNumberPurchasablePlayerItems($seller);
-                    }
+        $this->hdvData = Managers::DATABASE()->getServerData("hdv");
+        $this->purchasableItems = $this->getHdvData();
+
+        foreach ($this->purchasableItems as $seller => $items) {
+            foreach ($items as $itemProperties) {
+                if(!$itemProperties["expired"]) {
+                    $this->totalPurchasableItemsCount += $this->getNumberPurchasablePlayerItems($seller);
                 }
             }
-        }catch (Exception) {
-            Server::getInstance()->getLogger()->alert("§cLe core n'a pas la permission de créer le fichier {$this->getHdvFile()}. Veuillez le faire et redémarrez le serveur.");
-            $this->config = [];
         }
     }
 
-    /**
-     * @throws JsonException
-     */
-    public function onDisable(): void
+    public function save(): void
     {
         $this->saveAllHdv();
     }
@@ -169,23 +159,13 @@ final class HdvManager extends Manager
         }else return 0;
     }
 
-    /**
-     * @throws JsonException
-     */
     public function saveAllHdv(): void
     {
-        $config = new Config(Loader::getInstance()->getDataFolder() . $this->getHdvFile(), Config::JSON);
-        $config->setAll($this->purchasableItems);
-        $config->save();
+        Managers::DATABASE()->setServerData("hdv", $this->purchasableItems);
     }
 
-    public function getHdvConfig(): array
+    public function getHdvData(): array
     {
-        return $this->config;
-    }
-
-    public function getHdvFile(): string
-    {
-        return "/data/HdvContent.json";
+        return $this->hdvData;
     }
 }

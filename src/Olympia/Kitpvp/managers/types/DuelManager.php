@@ -3,9 +3,9 @@
 namespace Olympia\Kitpvp\managers\types;
 
 use Olympia\Kitpvp\duel\Duel;
-use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\entities\Session;
 use Olympia\Kitpvp\managers\Manager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\item\Armor;
 use pocketmine\item\enchantment\EnchantmentInstance;
@@ -30,9 +30,10 @@ final class DuelManager extends Manager
 
     public function onLoad(): void
     {
+        $this->setRequireSaveOnDisable(true);
     }
 
-    public function onDisable(): void
+    public function save(): void
     {
         foreach ($this->getDuels() as $duel) {
             $duel->end(true);
