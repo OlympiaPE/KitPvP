@@ -2,20 +2,19 @@
 
 namespace Olympia\Kitpvp\menu\forms;
 
-use Olympia\Kitpvp\libs\Vecnavium\FormsUI\SimpleForm;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\CosmeticsManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\Vecnavium\FormsUI\SimpleForm;
 
 class CosmeticForm extends Form
 {
-    public static function sendBaseMenu(OlympiaPlayer $player, ...$infos): void
+    public static function sendBaseMenu(Session $player, ...$infos): void
     {
-        $form = new SimpleForm(function (OlympiaPlayer $player, int $data = null) {
+        $form = new SimpleForm(function (Session $player, int $data = null) {
 
             if ($data !== null) {
 
-                self::sendCategoryCosmeticsMenu($player, CosmeticsManager::getInstance()->getCategoriesName()[$data]);
+                self::sendCategoryCosmeticsMenu($player, Managers::COSMETICS()->getCategoriesName()[$data]);
             }
 
             return true;
@@ -24,7 +23,7 @@ class CosmeticForm extends Form
         $form->setTitle("Cosmétiques");
         $form->setContent("§6» §fSélectionnez une catégorie");
 
-        foreach (CosmeticsManager::getInstance()->getCategoriesName() as $category) {
+        foreach (Managers::COSMETICS()->getCategoriesName() as $category) {
 
             $form->addButton($category);
         }
@@ -34,41 +33,41 @@ class CosmeticForm extends Form
         $player->sendForm($form);
     }
 
-    private static function sendCategoryCosmeticsMenu(OlympiaPlayer $player, string $category): void
+    private static function sendCategoryCosmeticsMenu(Session $player, string $category): void
     {
-        $form = new SimpleForm(function (OlympiaPlayer $player, int $data = null) use ($category) {
+        $form = new SimpleForm(function (Session $player, int $data = null) use ($category) {
 
-            $manager = CosmeticsManager::getInstance();
+            $manager = Managers::COSMETICS();
 
             if ($data === null || $data === count($manager->getCategoryCosmetics($category))) {
 
                 self::sendBaseMenu($player);
             }else{
 
-                $cosmetic = CosmeticsManager::getInstance()->getCategoryCosmetics($category)[$data];
+                $cosmetic = Managers::COSMETICS()->getCategoryCosmetics($category)[$data];
 
                 if ($player->hasCosmeticByCategory($category, $cosmetic)) {
 
-                    $cosmeticType = CosmeticsManager::getInstance()->getCategoryCosmeticInfos($category, $cosmetic)["type"];
+                    $cosmeticType = Managers::COSMETICS()->getCategoryCosmeticInfos($category, $cosmetic)["type"];
 
                     if($player->hasCosmeticEquipped($cosmeticType, $cosmetic)) {
 
                         // UNEQUIP
-                        CosmeticsManager::getInstance()->removePlayerCosmetic($player, $cosmeticType);
+                        Managers::COSMETICS()->removePlayerCosmetic($player, $cosmeticType);
                         $player->removeCosmeticEquipped($cosmeticType);
-                        $player->sendMessage(ConfigManager::getInstance()->getNested("messages.unequip-cosmetic"));
+                        $player->sendMessage(Managers::CONFIG()->getNested("messages.unequip-cosmetic"));
                     }else{
 
                         // EQUIP
-                        CosmeticsManager::getInstance()->removePlayerCosmetic($player, $cosmeticType);
-                        CosmeticsManager::getInstance()->applyPlayerCosmetic($player, $category, $cosmetic, $cosmeticType);
+                        Managers::COSMETICS()->removePlayerCosmetic($player, $cosmeticType);
+                        Managers::COSMETICS()->applyPlayerCosmetic($player, $category, $cosmetic, $cosmeticType);
                         $player->setCosmeticEquipped($cosmeticType, $category, $cosmetic);
-                        $player->sendMessage(ConfigManager::getInstance()->getNested("messages.equip-cosmetic"));
+                        $player->sendMessage(Managers::CONFIG()->getNested("messages.equip-cosmetic"));
                     }
                 }else{
 
                     // UNAVAILABLE
-                    $player->sendMessage(ConfigManager::getInstance()->getNested("messages.cosmetic-unavailable"));
+                    $player->sendMessage(Managers::CONFIG()->getNested("messages.cosmetic-unavailable"));
                 }
             }
 
@@ -78,8 +77,8 @@ class CosmeticForm extends Form
         $form->setTitle("Cosmétiques");
         $form->setContent("§6» §f$category");
 
-        foreach (CosmeticsManager::getInstance()->getCategoryCosmetics($category) as $cosmetic) {
-            $cosmeticInfos = CosmeticsManager::getInstance()->getCategoryCosmeticInfos($category, $cosmetic);
+        foreach (Managers::COSMETICS()->getCategoryCosmetics($category) as $cosmetic) {
+            $cosmeticInfos = Managers::COSMETICS()->getCategoryCosmeticInfos($category, $cosmetic);
             $cosmeticDisplayName = $cosmeticInfos["displayName"];
             $cosmeticType = $cosmeticInfos["type"];
             $label = $player->hasCosmeticByCategory($category, $cosmetic)

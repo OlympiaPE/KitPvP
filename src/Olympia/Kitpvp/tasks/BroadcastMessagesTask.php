@@ -2,7 +2,7 @@
 
 namespace Olympia\Kitpvp\tasks;
 
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
 
@@ -13,7 +13,7 @@ final class BroadcastMessagesTask extends Task
 
     public function __construct()
     {
-        $this->messages = ConfigManager::getInstance()->get("broadcast-messages");
+        $this->messages = Managers::CONFIG()->get("broadcast-messages");
     }
 
     public function onRun(): void

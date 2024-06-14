@@ -3,22 +3,18 @@
 namespace Olympia\Kitpvp\managers\types;
 
 use Olympia\Kitpvp\duel\Duel;
-use Olympia\Kitpvp\duel\DuelStates;
-use Olympia\Kitpvp\managers\ManageLoader;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\block\VanillaBlocks;
-use pocketmine\inventory\ArmorInventory;
 use pocketmine\item\Armor;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\enchantment\VanillaEnchantments;
 use pocketmine\item\PotionType;
 use pocketmine\item\VanillaItems;
-use pocketmine\utils\SingletonTrait;
 
-final class DuelManager extends ManageLoader
+final class DuelManager extends Manager
 {
-    use SingletonTrait;
-
     public const DUEL_TYPE_NODEBUFF = 0;
     public const DUEL_TYPE_SUMO = 1;
     public const DUEL_TYPE_ARCHER = 2;
@@ -32,7 +28,7 @@ final class DuelManager extends ManageLoader
     /** @var Duel[] */
     private array $duels = [];
 
-    public function onInit(): void
+    public function onLoad(): void
     {
     }
 
@@ -41,7 +37,6 @@ final class DuelManager extends ManageLoader
         foreach ($this->getDuels() as $duel) {
             $duel->end(true);
         }
-        parent::onDisable();
     }
 
     public function getAllDuelTypes(): array
@@ -84,7 +79,7 @@ final class DuelManager extends ManageLoader
         return $this->getAllDuelTypes()[$duelType] ?? "Inconnu";
     }
 
-    public function createDuel(OlympiaPlayer $player, OlympiaPlayer $target, int $mise, int $type): void
+    public function createDuel(Session $player, Session $target, int $mise, int $type): void
     {
         $this->duels[] = new Duel(hexdec(uniqid()), $player, $target, $mise, $type);
     }
@@ -110,10 +105,10 @@ final class DuelManager extends ManageLoader
     }
 
     /**
-     * @param OlympiaPlayer $player
+     * @param Session $player
      * @return Duel[]
      */
-    public function getPlayerDuels(OlympiaPlayer $player): array
+    public function getPlayerDuels(Session $player): array
     {
         $duels = [];
         foreach ($this->duels as $duel) {
@@ -124,7 +119,7 @@ final class DuelManager extends ManageLoader
         return $duels;
     }
 
-    public function givePlayerDuelKit(OlympiaPlayer $player, int $type): void
+    public function givePlayerDuelKit(Session $player, int $type): void
     {
         switch ($type) {
 
@@ -225,23 +220,23 @@ final class DuelManager extends ManageLoader
                 break;
 
             case $this::DUEL_TYPE_KIT_JOUEUR:
-                KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_JOUEUR);
+                Managers::KITS()->givePlayerKit($player, KitsManager::KIT_JOUEUR);
                 break;
 
             case $this::DUEL_TYPE_KIT_ANGES:
-                KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ANGES);
+                Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ANGES);
                 break;
 
             case $this::DUEL_TYPE_KIT_ARCHANGES:
-                KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ARCHANGES);
+                Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ARCHANGES);
                 break;
 
             case $this::DUEL_TYPE_KIT_POSEIDON:
-                KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_POSEIDON);
+                Managers::KITS()->givePlayerKit($player, KitsManager::KIT_POSEIDON);
                 break;
 
             case $this::DUEL_TYPE_KIT_ZEUS:
-                KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ZEUS);
+                Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ZEUS);
                 break;
         }
     }

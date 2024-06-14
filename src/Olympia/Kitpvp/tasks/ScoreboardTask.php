@@ -2,10 +2,9 @@
 
 namespace Olympia\Kitpvp\tasks;
 
-use Olympia\Kitpvp\managers\types\CombatManager;
-use Olympia\Kitpvp\managers\types\ScoreboardManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use Olympia\Kitpvp\player\PlayerCooldowns;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\entities\SessionCooldowns;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
 
@@ -14,16 +13,16 @@ final class ScoreboardTask extends Task
     public function onRun(): void
     {
         $server = Server::getInstance();
-        foreach(ScoreboardManager::getInstance()->getPlayersToDisplay() as $playerName) {
+        foreach(Managers::SCOREBOARD()->getPlayersToDisplay() as $playerName) {
 
-            /** @var OlympiaPlayer $player */
+            /** @var Session $player */
             $player = $server->getPlayerExact($playerName);
 
             if (is_null($player)) continue;
 
-            $combatTime = CombatManager::getInstance()->getPlayerFightTimeRemaining($player);
-            $cooldownPearl = $player->getCooldowns()->getCooldown(PlayerCooldowns::COOLDOWN_ENDERPEARL);
-            $cooldownNotch = $player->getCooldowns()->getCooldown(PlayerCooldowns::COOLDOWN_NOTCH);
+            $combatTime = Managers::COMBAT()->getPlayerFightTimeRemaining($player);
+            $cooldownPearl = $player->getCooldowns()->getCooldown(SessionCooldowns::COOLDOWN_ENDERPEARL);
+            $cooldownNotch = $player->getCooldowns()->getCooldown(SessionCooldowns::COOLDOWN_NOTCH);
 
             $kills = $player->getKill();
             $deaths = $player->getDeath();
@@ -31,7 +30,7 @@ final class ScoreboardTask extends Task
             $kdr = $deaths > 0 ? round($kills / $deaths, 2) : 0;
             $money = $player->getMoney() . "$";
 
-            $sm = ScoreboardManager::getInstance();
+            $sm = Managers::SCOREBOARD();
             $sm->new($player, "ObjectiveName",  "§l§6Olympia §f/ KITPVP");
             $sm->setLine($player, 1, "§r----------------");
             $sm->setLine($player, 2, "§l§6Cooldowns");

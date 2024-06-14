@@ -2,23 +2,23 @@
 
 namespace Olympia\Kitpvp\menu\forms;
 
-use Olympia\Kitpvp\libs\Vecnavium\FormsUI\SimpleForm;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\Vecnavium\FormsUI\SimpleForm;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\Server;
 use pocketmine\world\Position;
 
 class AreneForm extends Form
 {
-    public static function sendBaseMenu(OlympiaPlayer $player, ...$infos): void
+    public static function sendBaseMenu(Session $player, ...$infos): void
     {
-        $form = new SimpleForm(function (OlympiaPlayer $player, int $data = null) {
+        $form = new SimpleForm(function (Session $player, int $data = null) {
 
             if ($data === null)
                 return true;
 
-            $configManager = ConfigManager::getInstance();
+            $configManager = Managers::CONFIG();
 
             if($data === 1) {
 

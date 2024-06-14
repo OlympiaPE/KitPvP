@@ -3,9 +3,8 @@
 namespace Olympia\Kitpvp\commands\money;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\MoneyManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
@@ -21,14 +20,14 @@ class SeemoneyCommand extends OlympiaCommand
         if(isset($args[0])) {
 
             $playerName = $args[0];
-            /** @var ?OlympiaPlayer $player */
+            /** @var ?Session $player */
             $player = Server::getInstance()->getPlayerExact($playerName);
 
             if(is_null($player)) {
-                if(MoneyManager::getInstance()->hasOfflinePlayerMoneyData($playerName)) {
-                    $money = MoneyManager::getInstance()->getOfflinePlayerMoney($playerName);
+                if(!is_null($playerUuid = Managers::DATABASE()->getUuidByUsername($playerName))) {
+                    $money = Managers::DATABASE()->getUuidData($playerUuid, "money");
                 }else{
-                    $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.player-not-found"));
+                    $sender->sendMessage(Managers::CONFIG()->getNested("messages.player-not-found"));
                     return;
                 }
             }else{
@@ -38,7 +37,7 @@ class SeemoneyCommand extends OlympiaCommand
             $sender->sendMessage(str_replace(
                 ["{player}", "{money}"],
                 [$playerName, (string)$money],
-                ConfigManager::getInstance()->getNested("messages.see-money")
+                Managers::CONFIG()->getNested("messages.see-money")
             ));
         }else{
             $this->sendUsageMessage($sender);

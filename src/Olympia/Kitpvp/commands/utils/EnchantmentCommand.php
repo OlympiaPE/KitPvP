@@ -3,8 +3,8 @@
 namespace Olympia\Kitpvp\commands\utils;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
+use Olympia\Kitpvp\entities\Session;
 use Olympia\Kitpvp\menu\forms\EnchantForm;
-use Olympia\Kitpvp\player\OlympiaPlayer;
 use pocketmine\command\CommandSender;
 
 class EnchantmentCommand extends OlympiaCommand
@@ -16,7 +16,7 @@ class EnchantmentCommand extends OlympiaCommand
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        if($sender instanceof OlympiaPlayer) {
+        if($sender instanceof Session) {
             EnchantForm::sendBaseMenu($sender);
         }else{
             $this->sendNotPlayerMessage($sender);

@@ -2,8 +2,10 @@
 
 namespace Olympia\Kitpvp\listeners\server;
 
-use Olympia\Kitpvp\managers\types\CPSManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\handlers\Handlers;
+use Olympia\Kitpvp\libraries\SenseiTarzan\ExtraEvent\Class\EventAttribute;
+use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\event\server\DataPacketReceiveEvent as Event;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -13,11 +15,12 @@ use pocketmine\network\mcpe\protocol\types\PlayerAuthInputFlags;
 
 class DataPacketReceiveEvent implements Listener
 {
+    #[EventAttribute(EventPriority::NORMAL)]
     public function onDataPacketReceive(Event $event): void
     {
         $pk = $event->getPacket();
         $origin = $event->getOrigin();
-        /** @var OlympiaPlayer $player */
+        /** @var Session $player */
         $player = $origin->getPlayer();
 
         switch ($pk->pid()) {
@@ -26,7 +29,7 @@ class DataPacketReceiveEvent implements Listener
 
                 /** @var PlayerAuthInputPacket $pk */
                 if ($pk->hasFlag(PlayerAuthInputFlags::MISSED_SWING)) {
-                    CPSManager::getInstance()->add($player->getName());
+                    Handlers::CPS()->add($player->getName());
                 }
                 break;
 
@@ -34,7 +37,7 @@ class DataPacketReceiveEvent implements Listener
 
                 /** @var InventoryTransactionPacket $pk */
                 if ($pk->trData instanceof UseItemOnEntityTransactionData) {
-                    CPSManager::getInstance()->add($player->getName());
+                    Handlers::CPS()->add($player->getName());
                 }
                 break;
         }

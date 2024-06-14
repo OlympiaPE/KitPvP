@@ -2,16 +2,24 @@
 
 namespace Olympia\Kitpvp\listeners\player;
 
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\libraries\SenseiTarzan\ExtraEvent\Class\EventAttribute;
+use Olympia\Kitpvp\managers\Managers;
+use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerPreLoginEvent as Event;
 use pocketmine\Server;
 
 class PlayerPreLoginEvent implements Listener
 {
+    #[EventAttribute(EventPriority::NORMAL)]
     public function onPreLogin(Event $event): void
     {
         $playerInfo = $event->getPlayerInfo();
+        $uuid = $playerInfo->getUuid()->toString();
+
+        if (!Managers::DATABASE()->hasUuidData($uuid)) {
+            Managers::DATABASE()->createUuidData($uuid, $playerInfo->getUsername());
+        }
 
         if(
             Server::getInstance()->getNameBans()->isBanned($playerInfo->getUsername()) ||
@@ -25,7 +33,7 @@ class PlayerPreLoginEvent implements Listener
             $event->setKickFlag(Event::KICK_FLAG_BANNED, str_replace(
                 ["{staff}", "{reason}", "{date}"],
                 [$staff, $reason, $serializedDate],
-                ConfigManager::getInstance()->getNested("messages.ban-screen")
+                Managers::CONFIG()->getNested("messages.ban-screen")
             ));
         }
     }

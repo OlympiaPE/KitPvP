@@ -2,6 +2,7 @@
 
 namespace Olympia\Kitpvp\entities\boxs;
 
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\BoxsManager;
 use pocketmine\entity\Location;
 use pocketmine\nbt\tag\CompoundTag;
@@ -26,6 +27,6 @@ class ShopBox extends Box
 
     public function getKey(): string
     {
-        return BoxsManager::getInstance()->getKeyName(BoxsManager::BOX_SHOP);
+        return Managers::BOXS()->getKeyName(BoxsManager::BOX_SHOP);
     }
 }

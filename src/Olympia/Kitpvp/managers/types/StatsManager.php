@@ -2,15 +2,11 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
-use Olympia\Kitpvp\managers\ManageLoader;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use pocketmine\Server;
-use pocketmine\utils\SingletonTrait;
+use Olympia\Kitpvp\managers\Manager;
+use Olympia\Kitpvp\managers\Managers;
 
-final class StatsManager extends ManageLoader
+final class StatsManager extends Manager
 {
-    use SingletonTrait;
-
     public const STATS_KILL = "kill";
     public const STATS_DEATH = "death";
     public const STATS_KILLSTREAK = "killstreak";
@@ -23,82 +19,42 @@ final class StatsManager extends ManageLoader
     private array $killstreakLeaderboard;
     private array $nerdLeaderboard;
 
-    public function onInit(): void
+    public function onLoad(): void
     {
         $this->updateDataCache();
         $this->updateLeaderboard();
+    }
+
+    public function getPlayerStat(string $username, string $stat = "all"): array
+    {
+        return match ($stat) {
+            "all" => $this->playersStatsDataCache[$username] ?? [],
+            "death" => $this->playersStatsDataCache[$username]["death"] ?? [],
+            "kill" => $this->playersStatsDataCache[$username]["kill"] ?? [],
+            "killstreak" => $this->playersStatsDataCache[$username]["killstreak"] ?? [],
+            "best-killstreak" => $this->playersStatsDataCache[$username]["best-killstreak"] ?? [],
+            "playing-time" => $this->playersStatsDataCache[$username]["playing-time"] ?? [],
+            default => [],
+        };
     }
 
     public function updateDataCache(): void
     {
         $playersStatsDataCache = [];
 
-        $path = Server::getInstance()->getDataPath() . "/players";
-        foreach (scandir($path) as $file) {
-            if ($file != '.' && $file != '..') {
-                $name = pathinfo($file, PATHINFO_FILENAME);
-                if(!is_null($player = Server::getInstance()->getPlayerExact($name))) {
-                    /** @var OlympiaPlayer $player */
-                    $playersStatsDataCache[$name] = [
-                        "death" => $player->getDeath(),
-                        "kill" => $player->getKill(),
-                        "killstreak" => $player->getKillstreak(),
-                        "best-killstreak" => $player->getBestKillstreak(),
-                        "playing-time" => $player->getPlayingTime()
-                    ];
-                }else{
-                    $playersStatsDataCache[$name] = $this->getOfflinePlayerStat($name);
-                }
-            }
+        foreach (Managers::DATABASE()->getAllPlayersData() as $data) {
+            $username = $data["username"] ?? uniqid("Unknown-");
+            $statsData = $data["statistics"];
+            $playersStatsDataCache[$username] = [
+                "death" => $statsData["death"],
+                "kill" => $statsData["kill"],
+                "killstreak" => $statsData["killstreak"],
+                "best-killstreak" => $statsData["best-killstreak"],
+                "playing-time" => $statsData['playing-time']
+            ];
+
         }
         $this->playersStatsDataCache = $playersStatsDataCache;
-    }
-
-    public function getOfflinePlayerStat(string $player, string $stat = "all"): int|array
-    {
-        if(isset($this->playersStatsDataCache[$player])) {
-            return $this->playersStatsDataCache[$player];
-        }elseif(!is_null($data = Server::getInstance()->getOfflinePlayerData($player))) {
-            $data = $data->safeClone();
-            $properties = $data->getCompoundTag("properties");
-            $stats = $properties->getCompoundTag("statistics");
-
-            $death = $stats->getInt("death", 0);
-            $kill = $stats->getInt("kill", 0);
-            $killstreak = $stats->getInt("killstreak", 0);
-            $best_killstreak = $stats->getInt("best-killstreak", 0);
-            $playing_time = (int)$stats->getString("playing-time", "0");
-
-            switch ($stat) {
-
-                case "all":
-                    return [
-                        "death" => $death,
-                        "kill" => $kill,
-                        "killstreak" => $killstreak,
-                        "best-killstreak" => $best_killstreak,
-                        "playing-time" => $playing_time
-                    ];
-
-                case "death":
-                    return $death;
-
-                case "kill":
-                    return $kill;
-
-                case "killstreak":
-                    return $killstreak;
-
-                case "best_killstreak":
-                case "best-killstreak":
-                    return $best_killstreak;
-
-                case "playing_time":
-                case "playing-time":
-                    return $playing_time;
-            }
-        }
-        return 0;
     }
 
     public function updateLeaderboard(): void

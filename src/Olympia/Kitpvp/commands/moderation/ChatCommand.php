@@ -4,9 +4,8 @@ namespace Olympia\Kitpvp\commands\moderation;
 
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\ModerationManager;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 
 class ChatCommand extends OlympiaCommand
@@ -24,13 +23,13 @@ class ChatCommand extends OlympiaCommand
     {
         if (isset($args[0]) && (strtolower($args[0]) === "lock" || strtolower($args[0]) === "unlock")) {
             if (strtolower($args[0]) === "lock") {
-                ModerationManager::getInstance()->lockChat();
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.chat-lock"));
-                $sender->getServer()->broadcastMessage(ConfigManager::getInstance()->getNested("messages.chat-lock-broadcast"));
+                Managers::MODERATION()->lockChat();
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.chat-lock"));
+                $sender->getServer()->broadcastMessage(Managers::CONFIG()->getNested("messages.chat-lock-broadcast"));
             }else{
-                ModerationManager::getInstance()->unlockChat();
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.chat-unlock"));
-                $sender->getServer()->broadcastMessage(ConfigManager::getInstance()->getNested("messages.chat-unlock-broadcast"));
+                Managers::MODERATION()->unlockChat();
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.chat-unlock"));
+                $sender->getServer()->broadcastMessage(Managers::CONFIG()->getNested("messages.chat-unlock-broadcast"));
             }
         }else{
             $this->sendUsageMessage($sender);

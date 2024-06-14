@@ -4,9 +4,10 @@ namespace Olympia\Kitpvp\managers\types;
 
 use Exception;
 use Olympia\Kitpvp\entities\boxs\Box;
+use Olympia\Kitpvp\entities\Session;
 use Olympia\Kitpvp\exceptions\CosmeticsException;
-use Olympia\Kitpvp\managers\ManageLoader;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\managers\Manager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\entity\Location;
 use pocketmine\item\enchantment\EnchantmentInstance;
@@ -16,13 +17,10 @@ use pocketmine\item\ItemTypeIds;
 use pocketmine\item\PotionType;
 use pocketmine\item\VanillaItems;
 use pocketmine\Server;
-use pocketmine\utils\SingletonTrait;
 use pocketmine\world\Position;
 
-final class BoxsManager extends ManageLoader
+final class BoxsManager extends Manager
 {
-    use SingletonTrait;
-
     public const BOX_VOTE = 0;
     public const BOX_EPIC = 1;
     public const BOX_EVENT = 2;
@@ -32,9 +30,9 @@ final class BoxsManager extends ManageLoader
     /**
      * @throws CosmeticsException
      */
-    public function onInit(): void
+    public function onLoad(): void
     {
-        $boxCosmetics = CosmeticsManager::getInstance()->filterCosmeticsInfosByObtainPrefix(CosmeticsManager::OBTAIN_PREFIX_BOX);
+        $boxCosmetics = Managers::COSMETICS()->filterCosmeticsInfosByObtainPrefix(CosmeticsManager::OBTAIN_PREFIX_BOX);
         $totalLuckRate = 0;
         foreach ($boxCosmetics as $cosmeticInfos) {
             $totalLuckRate += $cosmeticInfos["obtain"][CosmeticsManager::OBTAIN_PREFIX_BOX];
@@ -52,7 +50,7 @@ final class BoxsManager extends ManageLoader
     {
         $boxName = $this->getBoxName($box);
         $location = new Location($pos->getFloorX() + 0.5, $pos->getFloorY(), $pos->getFloorZ() + 0.5, $pos->getWorld(), $orientation, 0);
-        EntitiesManager::getInstance()->spawnEntity($boxName, $location);
+        Managers::ENTITIES()->spawnEntity($boxName, $location);
     }
 
     public function deleteBox(int $box): void
@@ -81,12 +79,12 @@ final class BoxsManager extends ManageLoader
         };
     }
 
-    public function giveKey(OlympiaPlayer $player, int $box, int $count = 1): void
+    public function giveKey(Session $player, int $box, int $count = 1): void
     {
         $item = $this->getKeyItem($box, $count);
         if(is_null($item)) return;
         $player->safeGiveItem($item);
-        $message = ConfigManager::getInstance()->getNested("messages.receives-keys");
+        $message = Managers::CONFIG()->getNested("messages.receives-keys");
         $message = str_replace(["{quantity}", "{box}"], [$count, $this->getKeyName($box)], $message);
         $player->sendMessage($message);
     }
@@ -122,13 +120,13 @@ final class BoxsManager extends ManageLoader
         return false;
     }
 
-    public function useKey(OlympiaPlayer $player, int $box): void
+    public function useKey(Session $player, int $box): void
     {
         $item = VanillaBlocks::BARRIER()->asItem();
 
         if(!$player->getInventory()->canAddItem($item)) {
 
-            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.no-room-in-inventory"));
+            $player->sendMessage(Managers::CONFIG()->getNested("messages.no-room-in-inventory"));
             return;
         }
 
@@ -177,19 +175,19 @@ final class BoxsManager extends ManageLoader
                         break;
 
                     case $luck >= 162 && $luck <= 184:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ZEUS);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ZEUS);
                         break;
 
                     case $luck >= 185 && $luck <= 209:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_POSEIDON);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_POSEIDON);
                         break;
 
                     case $luck >= 210 && $luck <= 249:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ARCHANGES);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ARCHANGES);
                         break;
 
                     case $luck >= 250 && $luck <= 309:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ANGES);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ANGES);
                         break;
 
                     case $luck >= 310 && $luck <= 385:
@@ -272,19 +270,19 @@ final class BoxsManager extends ManageLoader
                         break;
 
                     case $luck >= 301 && $luck <= 400:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_DIABLOTINS);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_DIABLOTINS);
                         break;
 
                     case $luck >= 401 && $luck <= 500:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ARCHANGES);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ARCHANGES);
                         break;
 
                     case $luck >= 501 && $luck <= 580:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_HECATE);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_HECATE);
                         break;
 
                     case $luck >= 581 && $luck <= 640:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_HADES);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_HADES);
                         break;
 
                     case $luck >= 641 && $luck <= 665:
@@ -355,39 +353,39 @@ final class BoxsManager extends ManageLoader
                         break;
 
                     case $luck >= 131 && $luck <= 174:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ARCHANGES);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ARCHANGES);
                         break;
 
                     case $luck >= 175 && $luck <= 209:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ARCHANGES, 2);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ARCHANGES, 2);
                         break;
 
                     case $luck >= 210 && $luck <= 239:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ARCHANGES, 3);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ARCHANGES, 3);
                         break;
 
                     case $luck >= 240 && $luck <= 284:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_POSEIDON);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_POSEIDON);
                         break;
 
                     case $luck >= 285 && $luck <= 321:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_POSEIDON, 2);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_POSEIDON, 2);
                         break;
 
                     case $luck >= 322 && $luck <= 353:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_POSEIDON, 3);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_POSEIDON, 3);
                         break;
 
                     case $luck >= 354 && $luck <= 396:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ZEUS);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ZEUS);
                         break;
 
                     case $luck >= 397 && $luck <= 434:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ZEUS, 2);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ZEUS, 2);
                         break;
 
                     case $luck >= 435 && $luck <= 467:
-                        KitsManager::getInstance()->givePlayerKit($player, KitsManager::KIT_ZEUS, 3);
+                        Managers::KITS()->givePlayerKit($player, KitsManager::KIT_ZEUS, 3);
                         break;
 
                     case $luck >= 468 && $luck <= 500:
@@ -497,7 +495,7 @@ final class BoxsManager extends ManageLoader
 
             case $this::BOX_COSMETIC:
 
-                $boxCosmetics = CosmeticsManager::getInstance()->filterCosmeticsInfosByObtainPrefix(CosmeticsManager::OBTAIN_PREFIX_BOX);
+                $boxCosmetics = Managers::COSMETICS()->filterCosmeticsInfosByObtainPrefix(CosmeticsManager::OBTAIN_PREFIX_BOX);
 
                 $randomNumber = mt_rand(1, 100);
                 $accumulatedLuckRate = 0;
@@ -507,7 +505,7 @@ final class BoxsManager extends ManageLoader
                     $accumulatedLuckRate += $cosmeticInfos["obtain"][CosmeticsManager::OBTAIN_PREFIX_BOX];
                     if ($randomNumber <= $accumulatedLuckRate) {
                         $player->addCosmetic($cosmeticInfos["category"], $cosmetic);
-                        $player->sendMessage(str_replace("{cosmetic}", $cosmeticInfos["displayName"], ConfigManager::getInstance()->getNested("messages.obtains-cosmetic")));
+                        $player->sendMessage(str_replace("{cosmetic}", $cosmeticInfos["displayName"], Managers::CONFIG()->getNested("messages.obtains-cosmetic")));
                         break;
                     }
                 }
@@ -516,7 +514,7 @@ final class BoxsManager extends ManageLoader
 
         if($player->getInventory()->canAddItem($item)) {
 
-            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.open-box"));
+            $player->sendMessage(Managers::CONFIG()->getNested("messages.open-box"));
 
             $player->getInventory()->addItem($item);
 
@@ -525,7 +523,7 @@ final class BoxsManager extends ManageLoader
             $player->getInventory()->setItemInHand($key);
         }else{
 
-            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.no-room-in-inventory"));
+            $player->sendMessage(Managers::CONFIG()->getNested("messages.no-room-in-inventory"));
         }
     }
 }

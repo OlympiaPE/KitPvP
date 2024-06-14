@@ -2,8 +2,8 @@
 
 namespace Olympia\Kitpvp\entities\boxs;
 
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\BoxsManager;
-use Olympia\Kitpvp\managers\types\ConfigManager;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -43,15 +43,15 @@ abstract class Box extends Living
                     "CosmeticBox" => BoxsManager::BOX_COSMETIC,
                 };
 
-                if (BoxsManager::getInstance()->isKey($item) && $item->getCustomName() === $this->getKey()) {
+                if (Managers::BOXS()->isKey($item) && $item->getCustomName() === $this->getKey()) {
 
-                    BoxsManager::getInstance()->useKey($damager, $box);
+                    Managers::BOXS()->useKey($damager, $box);
                 }else{
 
                     $damager->sendMessage(str_replace(
                         "{key}",
-                        BoxsManager::getInstance()->getKeyName($box),
-                        ConfigManager::getInstance()->getNested("messages.no-key"))
+                        Managers::BOXS()->getKeyName($box),
+                        Managers::CONFIG()->getNested("messages.no-key"))
                     );
                 }
             }

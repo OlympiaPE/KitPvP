@@ -3,8 +3,8 @@
 namespace Olympia\Kitpvp\commands\utils;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
+use Olympia\Kitpvp\entities\Session;
 use Olympia\Kitpvp\menu\forms\CosmeticForm;
-use Olympia\Kitpvp\player\OlympiaPlayer;
 use pocketmine\command\CommandSender;
 
 class CosmeticCommand extends OlympiaCommand
@@ -16,7 +16,7 @@ class CosmeticCommand extends OlympiaCommand
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        if($sender instanceof OlympiaPlayer) {
+        if($sender instanceof Session) {
             CosmeticForm::sendBaseMenu($sender);
         }else{
             $this->sendNotPlayerMessage($sender);

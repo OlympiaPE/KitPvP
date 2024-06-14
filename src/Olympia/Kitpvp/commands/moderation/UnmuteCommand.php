@@ -4,10 +4,9 @@ namespace Olympia\Kitpvp\commands\moderation;
 
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\ModerationManager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\WebhookManager;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
@@ -28,13 +27,13 @@ class UnmuteCommand extends OlympiaCommand
 
             $playerName = $args[0];
 
-            if(ModerationManager::getInstance()->isMute($playerName)) {
+            if(Managers::MODERATION()->isMute($playerName)) {
 
-                ModerationManager::getInstance()->removeMute($playerName);
+                Managers::MODERATION()->removeMute($playerName);
                 $sender->sendMessage(str_replace(
                     "{player}",
                     $playerName,
-                    ConfigManager::getInstance()->getNested("messages.unmute-staff")
+                    Managers::CONFIG()->getNested("messages.unmute-staff")
                 ));
 
                 $staff = $sender->getName();
@@ -43,13 +42,13 @@ class UnmuteCommand extends OlympiaCommand
                     $player->sendMessage(str_replace(
                         "{staff}",
                         $staff,
-                        ConfigManager::getInstance()->getNested("messages.unmute-victim")
+                        Managers::CONFIG()->getNested("messages.unmute-victim")
                     ));
                 }
 
-                WebhookManager::getInstance()->sendMessage("Unmute", "**Joueur** : $playerName\n**Staff** : $staff", WebhookManager::CHANNEL_LOGS_SANCTIONS);
+                Managers::WEBHOOK()->sendMessage("Unmute", "**Joueur** : $playerName\n**Staff** : $staff", WebhookManager::CHANNEL_LOGS_SANCTIONS);
             }else{
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.unmute-not-mute"));
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.unmute-not-mute"));
             }
         }else{
             $this->sendUsageMessage($sender);

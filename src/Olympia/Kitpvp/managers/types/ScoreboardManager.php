@@ -2,23 +2,20 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
-use Olympia\Kitpvp\managers\ManageLoader;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\network\mcpe\protocol\RemoveObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetDisplayObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetScorePacket;
 use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
 use pocketmine\player\Player;
-use pocketmine\utils\SingletonTrait;
 
-final class ScoreboardManager extends ManageLoader
+final class ScoreboardManager extends Manager
 {
-    use SingletonTrait;
-
     private array $scoreboard = [];
 
     private array $players = [];
 
-    public function onInit(): void
+    public function onLoad(): void
     {
     }
 

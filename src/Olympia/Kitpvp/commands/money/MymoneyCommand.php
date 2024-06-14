@@ -3,8 +3,8 @@
 namespace Olympia\Kitpvp\commands\money;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\CommandSender;
 
 class MymoneyCommand extends OlympiaCommand
@@ -16,11 +16,11 @@ class MymoneyCommand extends OlympiaCommand
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        if($sender instanceof OlympiaPlayer) {
+        if($sender instanceof Session) {
             $sender->sendMessage(str_replace(
                 "{money}",
                 $sender->getMoney(),
-                ConfigManager::getInstance()->getNested("messages.my-money")
+                Managers::CONFIG()->getNested("messages.my-money")
             ));
         }else{
             $this->sendNotPlayerMessage($sender);

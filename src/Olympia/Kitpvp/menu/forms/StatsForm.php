@@ -2,10 +2,9 @@
 
 namespace Olympia\Kitpvp\menu\forms;
 
-use Olympia\Kitpvp\libs\Vecnavium\FormsUI\SimpleForm;
-use Olympia\Kitpvp\managers\types\MoneyManager;
-use Olympia\Kitpvp\managers\types\StatsManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\Vecnavium\FormsUI\SimpleForm;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\utils\Utils;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -15,7 +14,7 @@ class StatsForm extends Form
 {
     use SingletonTrait;
 
-    public static function sendBaseMenu(OlympiaPlayer $player, ...$infos): void
+    public static function sendBaseMenu(Session $player, ...$infos): void
     {
         $targetName = $infos[0];
         $online = $infos[1];
@@ -27,7 +26,7 @@ class StatsForm extends Form
         $form->setTitle("§6§lSTATS");
 
         if($online) {
-            /** @var OlympiaPlayer $target */
+            /** @var Session $target */
             $target = Server::getInstance()->getPlayerExact($targetName);
             $deaths = $target->getDeath();
             $kills = $target->getKill();
@@ -35,11 +34,12 @@ class StatsForm extends Form
             $money = $target->getMoney();
             $playingTime = Utils::durationToString($player->getPlayingTime());
         }else{
-            $stats = StatsManager::getInstance()->getOfflinePlayerStat($targetName);
+            $uuid = Managers::DATABASE()->getUuidByUsername($targetName);
+            $stats = Managers::STATS()->getPlayerStat($targetName);
             $deaths = $stats["death"];
             $kills = $stats["kill"];
             $killstreak = $stats["killstreak"];
-            $money = MoneyManager::getInstance()->getOfflinePlayerMoney($targetName);
+            $money = Managers::DATABASE()->getUuidData($uuid, "money");
             $playingTime = Utils::durationToString($stats["playing-time"]);
         }
 

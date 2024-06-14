@@ -2,9 +2,9 @@
 
 namespace Olympia\Kitpvp\tasks\async;
 
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\BoxsManager;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 
@@ -56,22 +56,22 @@ class VoteAsyncTask extends AsyncTask
     {
         $result = $this->getResult();
 
-        /** @var ?OlympiaPlayer $player */
+        /** @var ?Session $player */
         $player = Server::getInstance()->getPlayerExact($this->player);
 
         if(is_null($player)) return;
 
         if($result === "1") {
 
-            BoxsManager::getInstance()->giveKey($player, BoxsManager::BOX_VOTE);
-            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.vote"));
+            Managers::BOXS()->giveKey($player, BoxsManager::BOX_VOTE);
+            $player->sendMessage(Managers::CONFIG()->getNested("messages.vote"));
             $player->getServer()->broadcastMessage(str_replace(
                 "{player}",
                 $player->getDisplayName(),
-                ConfigManager::getInstance()->getNested("messages.general-vote")
+                Managers::CONFIG()->getNested("messages.general-vote")
             ));
         }else{
-            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.not-voted"));
+            $player->sendMessage(Managers::CONFIG()->getNested("messages.not-voted"));
         }
     }
 }

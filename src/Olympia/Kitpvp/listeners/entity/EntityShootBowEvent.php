@@ -2,22 +2,25 @@
 
 namespace Olympia\Kitpvp\listeners\entity;
 
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\SenseiTarzan\ExtraEvent\Class\EventAttribute;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\entity\Location;
 use pocketmine\entity\projectile\Arrow;
-use pocketmine\event\Listener;
 use pocketmine\event\entity\EntityShootBowEvent as Event;
+use pocketmine\event\EventPriority;
+use pocketmine\event\Listener;
 
 class EntityShootBowEvent implements Listener
 {
+    #[EventAttribute(EventPriority::NORMAL)]
     public function onShootBow(Event $event): void
     {
        $entity = $event->getEntity();
 
-       if ($entity instanceof OlympiaPlayer) {
+       if ($entity instanceof Session) {
 
-           $spawnArrowInfos = ConfigManager::getInstance()->getNested("bow.spawn-arrow");
+           $spawnArrowInfos = Managers::CONFIG()->getNested("bow.spawn-arrow");
 
            $location = $entity->getLocation();
            $directionVector = $entity->getDirectionVector()->normalize()->divide($spawnArrowInfos["distance"]);
@@ -25,7 +28,7 @@ class EntityShootBowEvent implements Listener
            $position = $location->subtract($directionVector->getX(), $y, $directionVector->getZ());
 
            $diff = $entity->getItemUseDuration();
-           $p = $diff / ConfigManager::getInstance()->getNested("bow.arrow-power");
+           $p = $diff / Managers::CONFIG()->getNested("bow.arrow-power");
            $baseForce = min((($p ** 2) + $p * 2) / 3, 1);
 
            $arrow = new Arrow(Location::fromObject(

@@ -11,7 +11,7 @@ use Olympia\Kitpvp\entities\boxs\VoteBox;
 use Olympia\Kitpvp\entities\npc\NPC;
 use Olympia\Kitpvp\entities\objects\FloatingText;
 use Olympia\Kitpvp\entities\projectiles\FishingHook;
-use Olympia\Kitpvp\managers\ManageLoader;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntityDataHelper;
 use pocketmine\entity\EntityFactory;
@@ -19,14 +19,11 @@ use pocketmine\entity\Living;
 use pocketmine\entity\Location;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\cache\StaticPacketCache;
-use pocketmine\utils\SingletonTrait;
 use pocketmine\world\format\Chunk;
 use pocketmine\world\World;
 
-final class EntitiesManager extends ManageLoader
+final class EntitiesManager extends Manager
 {
-    use SingletonTrait;
-
     /**
      * @var array
      */
@@ -35,7 +32,7 @@ final class EntitiesManager extends ManageLoader
     /**
      * @return void
      */
-    public function onInit(): void
+    public function onLoad(): void
     {
         $this->registerAllEntities();
     }

@@ -2,22 +2,18 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
-use Olympia\Kitpvp\Core;
-use Olympia\Kitpvp\managers\ManageLoader;
+use Olympia\Kitpvp\Loader;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\utils\Config;
-use pocketmine\utils\SingletonTrait;
 
-final class ShopManager extends ManageLoader
+final class ShopManager extends Manager
 {
-    use SingletonTrait;
-
-    private array $saleableItems = [];
     public array $shop = [];
 
-    public function onInit(): void
+    public function onLoad(): void
     {
-        Core::getInstance()->saveResource("shop.yml");
-        $shopConfig = new Config($this->getOwningPlugin()->getDataFolder() . "shop.yml", Config::YAML);
+        Loader::getInstance()->saveResource("shop.yml");
+        $shopConfig = new Config(Loader::getInstance()->getDataFolder() . "shop.yml", Config::YAML);
         $shop = $shopConfig->getAll();
 
         $this->shop = $shop;

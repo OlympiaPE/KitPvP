@@ -2,23 +2,21 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
+use GdImage;
 use JsonException;
-use Olympia\Kitpvp\Core;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\entities\skin\LegacySkinAdapter;
 use Olympia\Kitpvp\exceptions\CosmeticsException;
-use Olympia\Kitpvp\managers\ManageLoader;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use Olympia\Kitpvp\player\skin\LegacySkinAdapter;
+use Olympia\Kitpvp\Loader;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\entity\Skin;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\Server;
 use pocketmine\utils\Config;
-use pocketmine\utils\SingletonTrait;
-use GdImage;
 
-final class CosmeticsManager extends ManageLoader
+final class CosmeticsManager extends Manager
 {
-    use SingletonTrait;
-
     public const COSMETIC_COSTUME = "costume";
     public const COSMETIC_CAPE = "cape";
 
@@ -30,7 +28,6 @@ final class CosmeticsManager extends ManageLoader
     private const SIZE_64X64 = [64, 64];
     private const SIZE_128X128 = [128, 128];
 
-    private array $cosmetics = [];
 
     private array $cosmeticsInfos = [];
 
@@ -42,7 +39,7 @@ final class CosmeticsManager extends ManageLoader
     /**
      * @throws JsonException|CosmeticsException
      */
-    public function onInit(): void
+    public function onLoad(): void
     {
         $cosmeticsPath = $this->getCosmeticsPath();
         $created = is_dir($cosmeticsPath);
@@ -79,7 +76,7 @@ final class CosmeticsManager extends ManageLoader
             }
         }
 
-        $cosmeticsConfig = new Config($this->getOwningPlugin()->getDataFolder() . "CosmeticsInfos.yml", Config::YAML);
+        $cosmeticsConfig = new Config(Loader::getInstance()->getDataFolder() . "CosmeticsInfos.yml", Config::YAML);
         $cosmeticsInfos = $cosmeticsConfig->getAll();
 
         $missingCategories = array_diff($this->getCategoriesName(), array_keys($cosmeticsInfos));
@@ -133,8 +130,8 @@ final class CosmeticsManager extends ManageLoader
         $defaultSkinPath = $this->getDefaultSkinPath();
 
         if(!file_exists($defaultSkinPath)) {
-            $plugin = Core::getInstance();
-            $from = Core::getInstance()->getResourcePath("DefaultSkin.png");
+            $plugin = Loader::getInstance();
+            $from = Loader::getInstance()->getResourcePath("DefaultSkin.png");
             if (!@copy($from, $defaultSkinPath)) {
                 $plugin->getLogger()->alert("Impossible d'importer le skin par défaut, veuillez le faire manuellement en lui donnant le nom \"DefaultSkin.png\"");
             }
@@ -145,7 +142,7 @@ final class CosmeticsManager extends ManageLoader
 
     private function getCosmeticsPath(): string
     {
-        return Core::getInstance()->getDataFolder() . "cosmetics/";
+        return Loader::getInstance()->getDataFolder() . "cosmetics/";
     }
 
     private function getCategoryCosmeticPath(string $category, string $cosmetic): string
@@ -155,10 +152,10 @@ final class CosmeticsManager extends ManageLoader
 
     public function getDefaultSkinPath(): string
     {
-        return Core::getInstance()->getDataFolder() . "DefaultSkin.png";
+        return Loader::getInstance()->getDataFolder() . "DefaultSkin.png";
     }
 
-    public function updatePlayerCosmeticsInfos(OlympiaPlayer $player): void
+    public function updatePlayerCosmeticsInfos(Session $player): void
     {
         foreach ($this->cosmeticsInfos as $category => $cosmeticsInfos) {
             if(!empty($cosmeticsInfos)) {
@@ -258,12 +255,12 @@ final class CosmeticsManager extends ManageLoader
     /**
      * @throws JsonException
      */
-    public function applyPlayerCosmetic(OlympiaPlayer $player, string $category, string $cosmetic, string $cosmeticType): void
+    public function applyPlayerCosmetic(Session $player, string $category, string $cosmetic, string $cosmeticType): void
     {
         $cosmeticImg = @imagecreatefrompng($this->getCategoryCosmeticPath($category, $cosmetic) . ".png");
 
         if (!$cosmeticImg) {
-            $player->sendMessage(ConfigManager::getInstance()->getNested("messages.player-encounters-error"));
+            $player->sendMessage(Managers::CONFIG()->getNested("messages.player-encounters-error"));
             return;
         }
 
@@ -281,7 +278,7 @@ final class CosmeticsManager extends ManageLoader
                     $player->setSkin($newSkin);
                     $player->sendSkin();
                 }else{
-                    $player->sendMessage(ConfigManager::getInstance()->getNested("messages.player-encounters-error"));
+                    $player->sendMessage(Managers::CONFIG()->getNested("messages.player-encounters-error"));
                 }
                 break;
 
@@ -299,7 +296,7 @@ final class CosmeticsManager extends ManageLoader
     /**
      * @throws JsonException
      */
-    public function removePlayerCosmetic(OlympiaPlayer $player, string $cosmeticType): void
+    public function removePlayerCosmetic(Session $player, string $cosmeticType): void
     {
         switch ($cosmeticType) {
 

@@ -3,8 +3,8 @@
 namespace Olympia\Kitpvp\commands\admin;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\Core;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\Loader;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\CommandSender;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\scheduler\ClosureTask;
@@ -23,19 +23,19 @@ class StopCommand extends OlympiaCommand
         $server = $sender->getServer();
         $serverIsWhiteListed = $server->getConfigGroup()->getConfigBool(ServerProperties::WHITELIST);
 
-        Core::getInstance()->setRunning(false);
+        Loader::getInstance()->setRunning(false);
 
         foreach ($server->getOnlinePlayers() as $player) {
-            $player->kick(ConfigManager::getInstance()->getNested("messages.server-restart"));
+            $player->kick(Managers::CONFIG()->getNested("messages.server-restart"));
         }
 
         $server->getConfigGroup()->setConfigBool(ServerProperties::WHITELIST, true);
         $server->getConfigGroup()->save();
 
-        Core::getInstance()->getScheduler()->cancelAllTasks();
-        Core::getInstance()->unloadManagers();
+        Loader::getInstance()->getScheduler()->cancelAllTasks();
+        //Loader::getInstance()->unloadManagers();
 
-        Core::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($server, $serverIsWhiteListed) {
+        Loader::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($server, $serverIsWhiteListed) {
             $server->getConfigGroup()->setConfigBool(ServerProperties::WHITELIST, $serverIsWhiteListed);
             $server->getConfigGroup()->save();
             $server->shutdown();

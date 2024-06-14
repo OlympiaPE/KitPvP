@@ -3,8 +3,7 @@
 namespace Olympia\Kitpvp\entities\npc;
 
 use JsonException;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\NPCManager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\entity\Human;
 use pocketmine\entity\Location;
 use pocketmine\entity\Skin;
@@ -87,7 +86,7 @@ class NPC extends Human
         parent::initEntity($nbt);
         $this->setNameTag($this->npcInfos["name"]);
         $this->setNameTagVisible();
-        NPCManager::getInstance()->loadNpc($this);
+        Managers::NPC()->loadNpc($this);
     }
 
     public function getNpcId(): int
@@ -110,7 +109,7 @@ class NPC extends Human
             if($damager instanceof Player) {
 
                 $damagerName = $damager->getName();
-                $manager = NPCManager::getInstance();
+                $manager = Managers::NPC();
 
                 if($manager->getPlayerWantId($damagerName)) {
 
@@ -118,7 +117,7 @@ class NPC extends Human
                     $damager->sendMessage(str_replace(
                         "{id}",
                         $id,
-                        ConfigManager::getInstance()->getNested("messages.npc-get-id")
+                        Managers::CONFIG()->getNested("messages.npc-get-id")
                     ));
                     $manager->removePlayerWantId($damagerName);
                 }else{

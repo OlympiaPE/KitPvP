@@ -4,10 +4,9 @@ namespace Olympia\Kitpvp\commands\moderation;
 
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\ModerationManager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\WebhookManager;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 
 class UnfreezeCommand extends OlympiaCommand
@@ -31,29 +30,29 @@ class UnfreezeCommand extends OlympiaCommand
 
                 $playerName = $player->getName();
 
-                if(ModerationManager::getInstance()->isFreeze($player)) {
+                if(Managers::MODERATION()->isFreeze($player)) {
 
                     $sender->sendMessage(str_replace(
                         "{player}",
                         $playerName,
-                        ConfigManager::getInstance()->getNested("messages.unfreeze-staff")
+                        Managers::CONFIG()->getNested("messages.unfreeze-staff")
                     ));
                     $staff = $sender->getName();
 
-                    ModerationManager::getInstance()->removeFreeze($player);
+                    Managers::MODERATION()->removeFreeze($player);
 
                     $player->sendMessage(str_replace(
                         "{staff}",
                         $staff,
-                        ConfigManager::getInstance()->getNested("messages.unfreeze-victim")
+                        Managers::CONFIG()->getNested("messages.unfreeze-victim")
                     ));
 
-                    WebhookManager::getInstance()->sendMessage("Unfreeze", "**Joueur** : $playerName\n**Staff** : $staff", WebhookManager::CHANNEL_LOGS_SANCTIONS);
+                    Managers::WEBHOOK()->sendMessage("Unfreeze", "**Joueur** : $playerName\n**Staff** : $staff", WebhookManager::CHANNEL_LOGS_SANCTIONS);
                 }else{
-                    $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.unfreeze-not-freeze"));
+                    $sender->sendMessage(Managers::CONFIG()->getNested("messages.unfreeze-not-freeze"));
                 }
             }else{
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.player-not-found"));
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.player-not-found"));
             }
         }else{
             $this->sendUsageMessage($sender);

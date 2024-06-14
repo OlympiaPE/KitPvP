@@ -3,21 +3,23 @@
 namespace Olympia\Kitpvp\listeners\player;
 
 use Olympia\Kitpvp\entities\projectiles\FishingHook;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\TournamentManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use Olympia\Kitpvp\player\PlayerCooldowns;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\entities\SessionCooldowns;
+use Olympia\Kitpvp\libraries\SenseiTarzan\ExtraEvent\Class\EventAttribute;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\entity\Location;
 use pocketmine\event\entity\EntityRegainHealthEvent;
+use pocketmine\event\EventPriority;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerItemUseEvent as Event;
 use pocketmine\item\ItemTypeIds;
 
 class PlayerItemUseEvent implements Listener
 {
+    #[EventAttribute(EventPriority::NORMAL)]
     public function onItemUse(Event $event): void
     {
-        /** @var OlympiaPlayer $player */
+        /** @var Session $player */
         $player = $event->getPlayer();
         $item = $event->getItem();
 
@@ -25,21 +27,21 @@ class PlayerItemUseEvent implements Listener
         {
             case ItemTypeIds::ENDER_PEARL:
 
-                if(!$player->getCooldowns()->hasCooldown(PlayerCooldowns::COOLDOWN_ENDERPEARL)) {
-                    $duration = (int)ConfigManager::getInstance()->getNested("cooldowns.ender-pearl.duration");
+                if(!$player->getCooldowns()->hasCooldown(SessionCooldowns::COOLDOWN_ENDERPEARL)) {
+                    $duration = (int)Managers::CONFIG()->getNested("cooldowns.ender-pearl.duration");
                     $player->getCooldowns()->setCooldown(
-                        PlayerCooldowns::COOLDOWN_ENDERPEARL,
+                        SessionCooldowns::COOLDOWN_ENDERPEARL,
                         $duration,
-                        ConfigManager::getInstance()->getNested("cooldowns.ender-pearl.start-message"),
-                        ConfigManager::getInstance()->getNested("cooldowns.ender-pearl.end-message")
+                        Managers::CONFIG()->getNested("cooldowns.ender-pearl.start-message"),
+                        Managers::CONFIG()->getNested("cooldowns.ender-pearl.end-message")
                     );
                 }else{
                     $event->cancel();
-                    $duration = $player->getCooldowns()->getCooldown(PlayerCooldowns::COOLDOWN_ENDERPEARL);
+                    $duration = $player->getCooldowns()->getCooldown(SessionCooldowns::COOLDOWN_ENDERPEARL);
                     $player->sendMessage(str_replace(
                         "{time}",
                         $duration,
-                        ConfigManager::getInstance()->getNested("cooldowns.ender-pearl.message")
+                        Managers::CONFIG()->getNested("cooldowns.ender-pearl.message")
                     ));
                 }
                 break;
@@ -71,7 +73,7 @@ class PlayerItemUseEvent implements Listener
 
                 if ($player->inTournament()) {
 
-                    $tournament = TournamentManager::getInstance()->getTournament();
+                    $tournament = Managers::TOURNAMENT()->getTournament();
                     $tournament->removePlayer($player);
                 }
                 break;

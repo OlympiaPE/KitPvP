@@ -2,14 +2,12 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
-use Olympia\Kitpvp\managers\ManageLoader;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\managers\Manager;
 use pocketmine\player\Player;
-use pocketmine\utils\SingletonTrait;
 
-final class CombatManager extends ManageLoader
+final class CombatManager extends Manager
 {
-    use SingletonTrait;
-
     private float $kb;
     private float $verticalKbLimit;
     private int $attackCooldown;
@@ -17,9 +15,9 @@ final class CombatManager extends ManageLoader
 
     private array $inFight = [];
 
-    public function onInit(): void
+    public function onLoad(): void
     {
-        $combatInfos = ConfigManager::getInstance()->get("combat");
+        $combatInfos = Managers::CONFIG()->get("combat");
         $this->kb = $combatInfos["kb"];
         $this->verticalKbLimit = $combatInfos["vertical-kb-limit"];
         $this->attackCooldown = $combatInfos["attackcooldown"];

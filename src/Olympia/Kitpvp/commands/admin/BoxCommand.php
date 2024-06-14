@@ -4,10 +4,10 @@ namespace Olympia\Kitpvp\commands\admin;
 
 use Exception;
 use Olympia\Kitpvp\commands\OlympiaCommand;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\BoxsManager;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 
 class BoxCommand extends OlympiaCommand
@@ -23,7 +23,7 @@ class BoxCommand extends OlympiaCommand
      */
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        if($sender instanceof OlympiaPlayer) {
+        if($sender instanceof Session) {
             if(
                 (isset($args[0]) && in_array($args[0], ["spawn", "delete"])) &&
                 (isset($args[1]) && in_array($args[1], ["vote", "epic", "event", "shop", "cosmetic"])) &&
@@ -40,11 +40,11 @@ class BoxCommand extends OlympiaCommand
                 $orientation = $args[2] ?? 0;
 
                 if($args[0] === "spawn") {
-                    BoxsManager::getInstance()->spawnBox($box, $sender->getPosition(), $orientation);
-                    $sender->sendMessage(str_replace("{box}", $args[1], ConfigManager::getInstance()->getNested("messages.spawn-box")));
+                    Managers::BOXS()->spawnBox($box, $sender->getPosition(), $orientation);
+                    $sender->sendMessage(str_replace("{box}", $args[1], Managers::CONFIG()->getNested("messages.spawn-box")));
                 }else{
-                    BoxsManager::getInstance()->deleteBox($box);
-                    $sender->sendMessage(str_replace("{box}", $args[1], ConfigManager::getInstance()->getNested("messages.delete-box")));
+                    Managers::BOXS()->deleteBox($box);
+                    $sender->sendMessage(str_replace("{box}", $args[1], Managers::CONFIG()->getNested("messages.delete-box")));
                 }
             }else{
 

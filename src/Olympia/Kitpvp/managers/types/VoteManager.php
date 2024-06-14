@@ -2,20 +2,18 @@
 
 namespace Olympia\Kitpvp\managers\types;
 
-use Olympia\Kitpvp\managers\ManageLoader;
+use Olympia\Kitpvp\managers\Manager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\tasks\async\VoteAsyncTask;
 use pocketmine\player\Player;
-use pocketmine\utils\SingletonTrait;
 
-final class VoteManager extends ManageLoader
+final class VoteManager extends Manager
 {
-    use SingletonTrait;
-
     private string $key;
 
-    public function onInit(): void
+    public function onLoad(): void
     {
-        $this->key = ConfigManager::getInstance()->get("vote-key");
+        $this->key = Managers::CONFIG()->get("vote-key");
     }
 
     public function testVote(Player $player): void

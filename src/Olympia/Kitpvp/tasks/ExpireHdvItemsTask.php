@@ -5,7 +5,7 @@ namespace Olympia\Kitpvp\tasks;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use Olympia\Kitpvp\managers\types\HdvManager;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\scheduler\Task;
 
 class ExpireHdvItemsTask extends Task
@@ -15,14 +15,14 @@ class ExpireHdvItemsTask extends Task
      */
     public function onRun(): void
     {
-        foreach (HdvManager::getInstance()->purchasableItems as $player => $items) {
+        foreach (Managers::HDV()->purchasableItems as $player => $items) {
             foreach ($items as $key => $itemProperties) {
                 if(!$itemProperties["expired"]) {
                     $format = "d/m/Y H:i";
                     $date = DateTime::createFromFormat($format, $itemProperties["date"], new DateTimeZone('Europe/Paris'));
                     $diff = $date->diff(new DateTime('now', new DateTimeZone('Europe/Paris')));
                     if ($diff->h >= 24 || $diff->d > 0) {
-                        HdvManager::getInstance()->setItemExpired($player, $key);
+                        Managers::HDV()->setItemExpired($player, $key);
                     }
                 }
             }

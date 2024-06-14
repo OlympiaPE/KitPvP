@@ -3,7 +3,7 @@
 namespace Olympia\Kitpvp\commands\stats;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\StatsManager;
 use pocketmine\command\CommandSender;
 
@@ -16,8 +16,8 @@ class TopkillCommand extends OlympiaCommand
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
-        $messages = ConfigManager::getInstance()->getNested("leaderboards.kill");
-        $killLeaderboard = StatsManager::getInstance()->getLeaderboard(StatsManager::STATS_KILL);
+        $messages = Managers::CONFIG()->getNested("leaderboards.kill");
+        $killLeaderboard = Managers::STATS()->getLeaderboard(StatsManager::STATS_KILL);
 
         $message = $messages["title"];
         $top = 1;

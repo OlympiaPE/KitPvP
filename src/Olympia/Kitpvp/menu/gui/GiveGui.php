@@ -2,12 +2,12 @@
 
 namespace Olympia\Kitpvp\menu\gui;
 
+use Closure;
 use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\transaction\InvMenuTransaction;
 use muqsit\invmenu\transaction\InvMenuTransactionResult;
 use muqsit\invmenu\type\InvMenuTypeIds;
-use Closure;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
 use pocketmine\inventory\Inventory;
 use pocketmine\item\Item;
 use pocketmine\player\Player;
@@ -27,7 +27,7 @@ class GiveGui
 
                 return $transaction->continue();
             })
-            ->setInventoryCloseListener(function(OlympiaPlayer $viewer, Inventory $inventory): void {
+            ->setInventoryCloseListener(function(Session $viewer, Inventory $inventory): void {
 
                 foreach ($inventory->getContents() as $item) {
                     $viewer->getWorld()->dropItem($viewer->getPosition(), $item);

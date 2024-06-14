@@ -2,26 +2,26 @@
 
 namespace Olympia\Kitpvp\listeners\entity;
 
-use Olympia\Kitpvp\managers\types\CombatManager;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\DuelManager;
-use Olympia\Kitpvp\managers\types\TournamentManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use pocketmine\event\Listener;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\libraries\SenseiTarzan\ExtraEvent\Class\EventAttribute;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\event\entity\EntityDamageByEntityEvent as Event;
+use pocketmine\event\EventPriority;
+use pocketmine\event\Listener;
 
 class EntityDamageByEntityEvent implements Listener
 {
+    #[EventAttribute(EventPriority::NORMAL)]
     public function onDamage(Event $event): void
     {
         $entity = $event->getEntity();
         $damager = $event->getDamager();
 
-        $event->setKnockBack(CombatManager::getInstance()->getKb());
-        $event->setVerticalKnockBackLimit(CombatManager::getInstance()->getVerticalKbLimit());
-        $event->setAttackCooldown(CombatManager::getInstance()->getAttackCooldown());
+        $event->setKnockBack(Managers::COMBAT()->getKb());
+        $event->setVerticalKnockBackLimit(Managers::COMBAT()->getVerticalKbLimit());
+        $event->setAttackCooldown(Managers::COMBAT()->getAttackCooldown());
 
-        if ($entity instanceof OlympiaPlayer && $damager instanceof OlympiaPlayer) {
+        if ($entity instanceof Session && $damager instanceof Session) {
 
             if ($damager->getName() === $entity->getName()) {
                 return;
@@ -38,10 +38,10 @@ class EntityDamageByEntityEvent implements Listener
             }
 
             if (
-                $damager->getDuelState() === OlympiaPlayer::DUEL_STATE_FIGHTER &&
-                $entity->getDuelState() === OlympiaPlayer::DUEL_STATE_FIGHTER
+                $damager->getDuelState() === Session::DUEL_STATE_FIGHTER &&
+                $entity->getDuelState() === Session::DUEL_STATE_FIGHTER
             ) {
-                $duel = DuelManager::getInstance()->getDuelById($damager->getDuelId());
+                $duel = Managers::DUEL()->getDuelById($damager->getDuelId());
                 $kbInfos = $duel->getKbInfos();
                 $event->setKnockBack($kbInfos["kb"]);
                 $event->setVerticalKnockBackLimit($kbInfos["vertical-kb-limit"]);
@@ -55,7 +55,7 @@ class EntityDamageByEntityEvent implements Listener
             }
 
             if ($damager->inTournament()) {
-                $tournament = TournamentManager::getInstance()->getTournament();
+                $tournament = Managers::TOURNAMENT()->getTournament();
                 if ($tournament->isDamageable($damager) && $tournament->isDamageable($entity)) {
                     $kbInfos = $tournament->getKbInfos();
                     $event->setKnockBack($kbInfos["kb"]);
@@ -67,15 +67,15 @@ class EntityDamageByEntityEvent implements Listener
                 return;
             }
 
-            if(!CombatManager::getInstance()->inFight($damager)) {
-                $damager->sendMessage(ConfigManager::getInstance()->getNested("messages.enter-in-combat"));
+            if(!Managers::COMBAT()->inFight($damager)) {
+                $damager->sendMessage(Managers::CONFIG()->getNested("messages.enter-in-combat"));
             }
-            if(!CombatManager::getInstance()->inFight($entity)) {
-                $entity->sendMessage(ConfigManager::getInstance()->getNested("messages.enter-in-combat"));
+            if(!Managers::COMBAT()->inFight($entity)) {
+                $entity->sendMessage(Managers::CONFIG()->getNested("messages.enter-in-combat"));
             }
 
-            CombatManager::getInstance()->updatePlayerFight($entity);
-            CombatManager::getInstance()->updatePlayerFight($damager);
+            Managers::COMBAT()->updatePlayerFight($entity);
+            Managers::COMBAT()->updatePlayerFight($damager);
         }
     }
 }

@@ -3,10 +3,10 @@
 namespace Olympia\Kitpvp\commands\admin;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\BoxsManager;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
@@ -36,19 +36,19 @@ class GivekeyCommand extends OlympiaCommand
             $target = $args[0];
             $quantity = $args[2] ?? 1;
 
-            /** @var OlympiaPlayer $player */
+            /** @var Session $player */
             if($target === "all" || $target === "everyone") {
 
                 foreach (Server::getInstance()->getOnlinePlayers() as $player) {
 
-                    BoxsManager::getInstance()->giveKey($player, $box, $quantity);
+                    Managers::BOXS()->giveKey($player, $box, $quantity);
                 }
             }elseif(!is_null($player = Server::getInstance()->getPlayerByPrefix($target))) {
 
-                BoxsManager::getInstance()->giveKey($player, $box, $quantity);
+                Managers::BOXS()->giveKey($player, $box, $quantity);
             }else{
 
-                $message = ConfigManager::getInstance()->getNested("messages.player-not-found");
+                $message = Managers::CONFIG()->getNested("messages.player-not-found");
                 $sender->sendMessage($message);
             }
         }else{

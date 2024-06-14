@@ -3,16 +3,13 @@
 namespace Olympia\Kitpvp\managers\types;
 
 use DateTime;
-use Olympia\Kitpvp\managers\ManageLoader;
+use Olympia\Kitpvp\managers\Manager;
 use Olympia\Kitpvp\utils\Utils;
 use pocketmine\player\Player;
 use pocketmine\Server;
-use pocketmine\utils\SingletonTrait;
 
-final class ModerationManager extends ManageLoader
+final class ModerationManager extends Manager
 {
-    use SingletonTrait;
-
     private array $playersMute = [];
     private array $playersFreeze = [];
 
@@ -20,7 +17,7 @@ final class ModerationManager extends ManageLoader
 
     private bool $chatLock = false;
 
-    public function onInit(): void
+    public function onLoad(): void
     {
     }
 

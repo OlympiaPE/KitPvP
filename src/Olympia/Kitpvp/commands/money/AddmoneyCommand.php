@@ -3,10 +3,9 @@
 namespace Olympia\Kitpvp\commands\money;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\MoneyManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
@@ -22,33 +21,32 @@ class AddmoneyCommand extends OlympiaCommand
     {
         if(count($args) > 1 && is_numeric($args[1]) && !str_contains($args[1], '.')) {
 
-            if(
-                !is_null(Server::getInstance()->getOfflinePlayerData($args[0])) ||
-                MoneyManager::getInstance()->inPlayersMoneyData($args[0])
-            ) {
+            if(Managers::DATABASE()->hasUsernameData($args[0])) {
 
                 $money = intval($args[1]);
 
                 if(!is_null($player = Server::getInstance()->getPlayerExact($args[0]))) {
-                    /** @var OlympiaPlayer $player */
+                    /** @var Session $player */
                     $player->addMoney($money);
                     $player->sendMessage(str_replace(
                         ["{player}", "{money}"],
                         [$sender->getName(), (string)$money],
-                        ConfigManager::getInstance()->getNested("messages.receive-money")
+                        Managers::CONFIG()->getNested("messages.receive-money")
                     ));
-                }else{
-                    MoneyManager::getInstance()->addOfflinePlayerMoney($args[0], $money);
+                }else {
+                    $playerUuid = Managers::DATABASE()->getUuidByUsername($args[0]);
+                    $playerMoney = Managers::DATABASE()->getUuidData($playerUuid, "money");
+                    $totalMoney = $playerMoney + $money;
+                    Managers::DATABASE()->setUuidData($playerUuid, "money", $totalMoney);
                 }
 
-                MoneyManager::getInstance()->updatePlayerMoneyData($args[0]);
                 $sender->sendMessage(str_replace(
                     ["{player}", "{money}"],
                     [$args[0], (string)$money],
-                    ConfigManager::getInstance()->getNested("messages.add-money")
+                    Managers::CONFIG()->getNested("messages.add-money")
                 ));
             }else{
-                $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.player-not-found"));
+                $sender->sendMessage(Managers::CONFIG()->getNested("messages.player-not-found"));
             }
         }else{
             $this->sendUsageMessage($sender);

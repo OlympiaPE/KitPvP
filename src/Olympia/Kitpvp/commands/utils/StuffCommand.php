@@ -3,9 +3,9 @@
 namespace Olympia\Kitpvp\commands\utils;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\menu\gui\StuffGui;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 
@@ -25,7 +25,7 @@ class StuffCommand extends OlympiaCommand
                     $gui = new StuffGui($player);
                     $gui->send($sender);
                 }else{
-                    $sender->sendMessage(ConfigManager::getInstance()->getNested("messages.player-not-found"));
+                    $sender->sendMessage(Managers::CONFIG()->getNested("messages.player-not-found"));
                 }
             }else{
                 $this->sendUsageMessage($sender);

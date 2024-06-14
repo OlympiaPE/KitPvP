@@ -2,8 +2,8 @@
 
 namespace Olympia\Kitpvp\entities\projectiles;
 
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\player\OlympiaPlayer;
+use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\entity\Location;
@@ -22,11 +22,9 @@ class FishingHook extends Projectile
     {
         parent::__construct($location, $shootingEntity, $nbt);
 
-        //$this->setGravity(0.1);
+        if($shootingEntity instanceof Session) {
 
-        if($shootingEntity instanceof OlympiaPlayer) {
-
-            $this->setMotion($shootingEntity->getDirectionVector()->multiply(ConfigManager::getInstance()->getNested("rod.throw-power")));
+            $this->setMotion($shootingEntity->getDirectionVector()->multiply(Managers::CONFIG()->getNested("rod.throw-power")));
             $this->handleHookCasting($this->getMotion()->getX(), $this->getMotion()->getY(), $this->getMotion()->getZ());
 
         } else {
@@ -56,11 +54,11 @@ class FishingHook extends Projectile
         $player = $this->getOwningEntity();
         $despawn = false;
 
-        if($player instanceof OlympiaPlayer) {
+        if($player instanceof Session) {
             if(
                 (
                     $player->getInventory()->getItemInHand()->getTypeId() !== ItemTypeIds::FISHING_ROD &&
-                    ConfigManager::getInstance()->getNested("rod.unequip-despawn")
+                    Managers::CONFIG()->getNested("rod.unequip-despawn")
                 ) ||
                 !$player->isAlive() ||
                 $player->isClosed() ||
@@ -82,7 +80,7 @@ class FishingHook extends Projectile
 
     protected function getInitialSizeInfo(): EntitySizeInfo
     {
-        $hitbox = ConfigManager::getInstance()->getNested("rod.hitbox");
+        $hitbox = Managers::CONFIG()->getNested("rod.hitbox");
         return new EntitySizeInfo($hitbox, $hitbox);
     }
 
@@ -103,7 +101,7 @@ class FishingHook extends Projectile
 
     public function getBaseDamage(): float
     {
-        return ConfigManager::getInstance()->getNested("rod.damage");
+        return Managers::CONFIG()->getNested("rod.damage");
     }
 
     private function handleHookCasting(float $x, float $y, float $z): void

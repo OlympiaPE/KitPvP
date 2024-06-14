@@ -3,9 +3,9 @@
 namespace Olympia\Kitpvp\commands\admin;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\types\ConfigManager;
-use Olympia\Kitpvp\managers\types\EventsManager;
-use Olympia\Kitpvp\utils\Permissions;
+use Olympia\Kitpvp\handlers\Handlers;
+use Olympia\Kitpvp\managers\Managers;
+use Olympia\Kitpvp\utils\constants\Permissions;
 use pocketmine\command\CommandSender;
 
 class ChestrefillCommand extends OlympiaCommand
@@ -23,10 +23,10 @@ class ChestrefillCommand extends OlympiaCommand
             $sender->sendMessage(str_replace(
                 "{level}",
                 $args[0],
-                ConfigManager::getInstance()->getNested("messages.chestrefill-command-success")
+                Managers::CONFIG()->getNested("messages.chestrefill-command-success")
             ));
 
-            EventsManager::getInstance()->refillChests((int)$args[0]);
+            Handlers::CHEST_REFILL()->refillChests((int)$args[0]);
         }else{
             $this->sendUsageMessage($sender);
         }
