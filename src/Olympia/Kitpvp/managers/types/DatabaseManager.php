@@ -100,7 +100,7 @@ class DatabaseManager extends Manager
 
                 // Players
                 $playersData = json_decode($rows[0]["players_data"], true);
-                foreach ($playersData as &$playerData) {
+                foreach ($playersData as $uuid => &$playerData) {
 
                     $defaultPlayerData = $this->getDefaultPlayerData($playersData["username"] ?? "Unknown");
 
@@ -119,6 +119,8 @@ class DatabaseManager extends Manager
                             unset($playerData[$toRemove]);
                         }
                     }
+
+                    $this->uuidUsernames[$uuid] = strtolower($playerData["username"]);
                 }
                 unset($playerData);
                 $this->playersDataCache = $playersData;
@@ -193,7 +195,8 @@ class DatabaseManager extends Manager
             "koth" => [
                 "started" => false,
                 "last-capture-time" => null,
-            ]
+            ],
+            "hdv" => [],
         ];
     }
 
@@ -317,7 +320,7 @@ class DatabaseManager extends Manager
     public function getDefaultPlayerData(string $username): array
     {
         return [
-            "username" => strtolower($username),
+            "username" => $username,
             "reclaim" => false,
             "money" => "0",
             "cooldowns" => [],
@@ -383,7 +386,7 @@ class DatabaseManager extends Manager
      */
     public function createUuidData(string $uuid, string $username): void
     {
-        $this->uuidUsernames[$uuid] = $username;
+        $this->uuidUsernames[$uuid] = strtolower($username);
         $this->playersDataCache[$uuid] = $this->getDefaultPlayerData($username);
         $this->savePlayersData();
     }

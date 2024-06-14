@@ -117,7 +117,7 @@ class Managers
      */
     public static function save(): void
     {
-        foreach (self::getAll() as $manager) {
+        foreach (array_reverse(self::getAll()) as $manager) {
             if ($manager instanceof Manager && $manager->isRequireSaveOnDisable()) {
                 $manager->save();
             }
