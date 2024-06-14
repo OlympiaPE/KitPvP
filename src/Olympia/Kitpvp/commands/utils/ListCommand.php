@@ -18,17 +18,26 @@ class ListCommand extends OlympiaCommand
     {
         $onlinePlayers = $sender->getServer()->getOnlinePlayers();
         $playersCount = count($onlinePlayers);
-        $playerNames = array_map(function(Player $player) : string{
-            return $player->getName();
-        }, array_filter($onlinePlayers, function(Player $player) use ($sender) : bool{
-            return !($sender instanceof Player) || $sender->canSee($player);
-        }));
-        sort($playerNames, SORT_STRING);
 
-        $sender->sendMessage(str_replace(
-            ["{playersCount}", "{playersNames}"],
-            [$playersCount, $playerNames],
-            Managers::CONFIG()->getNested("messages.list")
-        ));
+        if ($playersCount > 0) {
+            $playerNames = array_map(function(Player $player) : string{
+                return $player->getName();
+            }, array_filter($onlinePlayers, function(Player $player) use ($sender) : bool{
+                return !($sender instanceof Player) || $sender->canSee($player);
+            }));
+            sort($playerNames, SORT_STRING);
+
+            $sender->sendMessage(str_replace(
+                ["{playersCount}", "{playersNames}"],
+                [$playersCount, $playerNames],
+                Managers::CONFIG()->getNested("messages.list")
+            ));
+        }else{
+            $sender->sendMessage(str_replace(
+                ["{playersCount}", "{playersNames}"],
+                [$playersCount, ""],
+                Managers::CONFIG()->getNested("messages.list")
+            ));
+        }
     }
 }

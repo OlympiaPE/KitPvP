@@ -16,7 +16,6 @@ use Olympia\Kitpvp\managers\types\HdvManager;
 use Olympia\Kitpvp\managers\types\KitsManager;
 use Olympia\Kitpvp\managers\types\ListenerManager;
 use Olympia\Kitpvp\managers\types\ModerationManager;
-use Olympia\Kitpvp\managers\types\MoneyManager;
 use Olympia\Kitpvp\managers\types\NPCManager;
 use Olympia\Kitpvp\managers\types\PermissionManager;
 use Olympia\Kitpvp\managers\types\ScoreboardManager;
@@ -34,7 +33,6 @@ use ReflectionClass;
  * @method static ConfigManager CONFIG()
  * @method static DatabaseManager DATABASE()
  * @method static PermissionManager PERMISSION()
- * @method static MoneyManager MONEY()
  * @method static StatsManager STATS()
  * @method static CosmeticsManager COSMETICS()
  * @method static FloatingTextManager FLOATING_TEXT()

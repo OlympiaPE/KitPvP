@@ -3,8 +3,8 @@
 namespace Olympia\Kitpvp\commands\stats;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\menu\forms\StatsForm;
 use pocketmine\command\CommandSender;
 
@@ -22,7 +22,7 @@ class StatsCommand extends OlympiaCommand
                 $target = $args[0];
                 if(!is_null($sender->getServer()->getPlayerExact($target))) {
                     StatsForm::sendBaseMenu($sender, $target, true);
-                }elseif(!is_null($sender->getServer()->getOfflinePlayerData($target))) {
+                }elseif(Managers::DATABASE()->hasUsernameData($target)) {
                     StatsForm::sendBaseMenu($sender, $target, false);
                 }else{
                     $sender->sendMessage(Managers::CONFIG()->getNested("messages.player-not-found"));

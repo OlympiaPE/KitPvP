@@ -15,10 +15,29 @@ class CommandManager extends Manager
      */
     public function onLoad(): void
     {
-        FileUtil::callDirectory(Path::join("commands"), function(string $name): void {
+        $commandMap = Loader::getInstance()->getServer()->getCommandMap();
+
+        $toUnregister = [
+            'ban',
+            'unban',
+            'kick',
+            'me',
+            'say',
+            'list',
+            'stop',
+        ];
+
+        foreach ($toUnregister as $command) {
+            $cmd = $commandMap->getCommand($command);
+            if($cmd) {
+                $commandMap->unregister($cmd);
+            }
+        }
+
+        FileUtil::callDirectory(Path::join("commands"), function(string $name) use ($commandMap): void {
             $command = new $name();
             if ($command instanceof Command) {
-                Loader::getInstance()->getServer()->getCommandMap()->register($command->getName(), $command);
+                $commandMap->register($command->getName(), $command);
             }
         }, null, ["Olympia\Kitpvp\commands\OlympiaCommand"]);
     }

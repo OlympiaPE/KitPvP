@@ -21,10 +21,7 @@ class PayCommand extends OlympiaCommand
 
             if(isset($args[0]) && isset($args[1])) {
 
-                if(
-                    !is_null(Server::getInstance()->getOfflinePlayerData($args[0])) ||
-                    Managers::MONEY()->inPlayersMoneyData($args[0])
-                ) {
+                if(Managers::DATABASE()->hasUsernameData($args[0])) {
 
                     $money = intval($args[1]);
 
@@ -33,7 +30,6 @@ class PayCommand extends OlympiaCommand
                         if($sender->hasEnoughMoney($money)) {
 
                             $sender->removeMoney($money);
-                            Managers::MONEY()->updatePlayerMoneyData($sender->getName());
 
                             $sender->sendMessage(str_replace(
                                 ["{player}", "{money}"],
@@ -50,10 +46,12 @@ class PayCommand extends OlympiaCommand
                                     [$sender->getDisplayName(), (string)$money],
                                     Managers::CONFIG()->getNested("messages.receive-money")
                                 ));
-                            }else{
-                                Managers::MONEY()->addOfflinePlayerMoney($args[0], $money);
+                            }else {
+                                $playerUuid = Managers::DATABASE()->getUuidByUsername($args[0]);
+                                $playerMoney = Managers::DATABASE()->getUuidData($playerUuid, "money");
+                                $totalMoney = $playerMoney + $money;
+                                Managers::DATABASE()->setUuidData($playerUuid, "money", $totalMoney);
                             }
-                            Managers::MONEY()->updatePlayerMoneyData($args[0]);
                         }else{
                             $sender->sendMessage(Managers::CONFIG()->getNested("messages.not-enough-money"));
                         }

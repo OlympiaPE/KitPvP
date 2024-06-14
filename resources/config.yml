@@ -2,10 +2,10 @@ database:
   type: mysql
 
   mysql:
-    host: 127.0.0.1
+    host: 87.98.220.248
     username: root
     password: ""
-    schema: your_schema
+    schema: servers
 
   worker-limit: 2
 
@@ -190,6 +190,7 @@ commands-allowed-in-combat:
 
 # In ticks (20 ticks = 1 second)
 update-periods:
+  save-server-data: 6000
   scoreboard: 20
   combat: 20
   cps: 1
@@ -197,6 +198,7 @@ update-periods:
   player-stats: 1200
   broadcast-message: 1200
   start-koth: 20
+  chest-refill: 12000
 
 no-fall-damage-zones:
   spawn:
@@ -379,6 +381,8 @@ messages:
   clear-lag-forced-warning: "§6[§fClearLag§6] §fsera effectué dans §610 §fsecondes."
   clear-lag-force: "§6[§fClearLag§6] §fsera bien forcé dans §610 secondes§f."
   clear-lag: "§6[§fClearLag§6] {amount} entitées §font été supprimées."
+
+  clear-entities: "§6» {amount} entitées §font été supprimées."
 
   obtains-cosmetic: "§6» §fVous venez de débloquer le cosmétique §6{cosmetic} §f!"
   equip-cosmetic: "§6» §fVous avez bien équipé ce cosmétique."

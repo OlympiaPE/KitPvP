@@ -7,6 +7,7 @@ interface Permissions
     public const COMMAND_BOX = "olympia.command.spawn";
     public const COMMAND_GIVEKEY = "olympia.command.givekey";
     public const COMMAND_FORCECLEARLAG = "olympia.command.forceclearlag";
+    public const COMMAND_CLEARENTITIES = "olympia.command.clearentities";
     public const COMMAND_NPC = "olympia.command.npc";
     public const COMMAND_STARTKOTH = "olympia.command.startkoth";
     public const COMMAND_CHESTREFILL = "olympia.command.chestrefill";

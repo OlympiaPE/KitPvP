@@ -34,11 +34,12 @@ class StatsForm extends Form
             $money = $target->getMoney();
             $playingTime = Utils::durationToString($player->getPlayingTime());
         }else{
-            $stats = Managers::STATS()->getOfflinePlayerStat($targetName);
+            $uuid = Managers::DATABASE()->getUuidByUsername($targetName);
+            $stats = Managers::STATS()->getPlayerStat($targetName);
             $deaths = $stats["death"];
             $kills = $stats["kill"];
             $killstreak = $stats["killstreak"];
-            $money = Managers::MONEY()->getOfflinePlayerMoney($targetName);
+            $money = Managers::DATABASE()->getUuidData($uuid, "money");
             $playingTime = Utils::durationToString($stats["playing-time"]);
         }
 

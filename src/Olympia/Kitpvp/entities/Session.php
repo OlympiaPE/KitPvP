@@ -20,7 +20,6 @@ class Session extends Player
     public const DUEL_STATE_FIGHTER = 1;
     public const DUEL_STATE_SPECTATOR = 2;
 
-    private SessionProperties $properties;
     private SessionCooldowns $cooldowns;
 
     private ?GiveGui $giveGui = null;
@@ -44,61 +43,19 @@ class Session extends Player
 
         $this->duelState = $this::DUEL_STATE_NONE;
 
-        $this->properties = new SessionProperties($this);
-        $this->updateProperties();
-
         $this->cooldowns = new SessionCooldowns($this);
 
         $this->updateCosmeticsCategories();
     }
 
-    /**
-     * @return CompoundTag
-     */
-    public function saveNBT(): CompoundTag
-    {
-        $this->getCooldowns()->saveAllCooldowns();
-
-        $nbt = parent::saveNBT();
-        !isset($this->properties) ?: $nbt = $this->properties->save($nbt);
-
-        return $nbt;
-    }
-
     public function setHealth(float $amount): void
     {
-        if (isset($this->properties)) {
+        if ($this->isOnline()) {
             $roundedAmount = $amount <= $this->getMaxHealth() ? round($amount, 1) : $this->getMaxHealth();
             $this->setNameTag($this->getDisplayName() . "\n{$roundedAmount}");
         }
 
         parent::setHealth($amount);
-    }
-
-    public function getProperties(): SessionProperties
-    {
-        return $this->properties;
-    }
-
-    private function updateProperties(): void
-    {
-        $defaultProperties = $this->properties->getDefaultProperties($this);
-        $playerProperties = $this->properties->getPropertiesList();
-
-        $less = array_diff(array_keys($defaultProperties), array_keys($playerProperties));
-        $tooMuch = array_diff(array_keys($playerProperties), array_keys($defaultProperties));
-
-        if (!empty($less)) {
-            foreach ($less as $toAdd) {
-                $this->properties->setProperties($toAdd, $defaultProperties[$toAdd]);
-            }
-        }
-
-        if (!empty($tooMuch)) {
-            foreach ($tooMuch as $toRemove) {
-                $this->properties->removeProperties($toRemove);
-            }
-        }
     }
 
     public function getCooldowns(): SessionCooldowns
@@ -108,12 +65,12 @@ class Session extends Player
 
     public function getSettings(): array
     {
-        return $this->properties->getProperties("settings");
+        return Managers::DATABASE()->getUuidData($this->getUniqueId()->toString(), "settings", []);
     }
 
     public function setSettings(array $settings): void
     {
-        $this->properties->setProperties("settings", $settings);
+        Managers::DATABASE()->setUuidData($this->getUniqueId()->toString(), "settings", $settings);
     }
 
     public function getRank(): Rank
@@ -140,7 +97,7 @@ class Session extends Player
             foreach ($missingCategories as $missingCategory) {
 
                 $playerCosmetics[$missingCategory] = [];
-                $this->properties->setNestedProperties("cosmetics.$missingCategory", []);
+                Managers::DATABASE()->setNestedUuidData($this->getUniqueId()->toString(), "cosmetics.$missingCategory", []);
             }
         }
 
@@ -156,7 +113,7 @@ class Session extends Player
 
                 foreach ($missingCosmetics as $missingCosmetic) {
 
-                    $this->properties->setNestedProperties("cosmetics.$category.$missingCosmetic", 0);
+                    Managers::DATABASE()->setNestedUuidData($this->getUniqueId()->toString(), "cosmetics.$category.$missingCosmetic", 0);
                 }
             }
         }
@@ -164,14 +121,14 @@ class Session extends Player
 
     public function getAllCosmetics(): array
     {
-        return $this->properties->getProperties("cosmetics");
+        return Managers::DATABASE()->getUuidData($this->getUniqueId()->toString(), "cosmetics", Managers::COSMETICS()->getCategories());
     }
 
     public function addCosmetic(string $category, string $cosmetic): void
     {
         if(!$this->hasCosmeticByCategory($category, $cosmetic)) {
 
-            $this->properties->setNestedProperties("cosmetics.$category.$cosmetic", 1);
+            Managers::DATABASE()->setNestedUuidData($this->getUniqueId()->toString(), "cosmetics.$category.$cosmetic", 1);
         }
     }
 
@@ -179,7 +136,11 @@ class Session extends Player
     {
         if(!$this->hasCosmeticByCategory($category, $cosmetic)) {
 
-            $this->properties->setNestedProperties("cosmetics.$category.$cosmetic", 0);
+            Managers::DATABASE()->setNestedUuidData(
+                $this->getUniqueId()->toString(),
+                "cosmetics.$category.$cosmetic",
+                0
+            );
         }
     }
 
@@ -195,17 +156,29 @@ class Session extends Player
 
     public function getAllEquippedCosmetics(): array
     {
-        return $this->properties->getProperties("equipped-cosmetics");
+        return Managers::DATABASE()->getUuidData(
+            $this->getUniqueId()->toString(),
+            "equipped-cosmetics",
+            []
+        );
     }
 
     public function removeCosmeticEquipped(string $cosmeticType): void
     {
-        $this->properties->setNestedProperties("equipped-cosmetics.$cosmeticType", 0);
+        Managers::DATABASE()->setNestedUuidData(
+            $this->getUniqueId()->toString(),
+            "equipped-cosmetics.$cosmeticType",
+            0
+        );
     }
 
     public function setCosmeticEquipped(string $cosmeticType, string $category, string $cosmetic): void
     {
-        $this->properties->setNestedProperties("equipped-cosmetics.$cosmeticType", ["category" => $category, "cosmetic" => $cosmetic]);
+        Managers::DATABASE()->setNestedUuidData(
+            $this->getUniqueId()->toString(),
+            "equipped-cosmetics.$cosmeticType",
+            ["category" => $category, "cosmetic" => $cosmetic]
+        );
     }
 
     public function getEquippedCosmetic(string $cosmeticType): bool|array
@@ -225,84 +198,84 @@ class Session extends Player
 
     public function getPlayingTime(): int
     {
+        $time = (int)Managers::DATABASE()->getNestedUuidData($this->getUniqueId()->toString(), "statistics.playing-time");
         if($this->connectionTime !== null) {
-            $time = (int)$this->properties->getNestedProperties("statistics.playing-time");
             return ($time + (time() - $this->connectionTime));
         }else{
-            return (int)$this->properties->getNestedProperties("statistics.playing-time");
+            return $time;
         }
     }
 
     public function updatePlayingTime(): void
     {
         if($this->connectionTime !== null) {
-            $time = (int)$this->properties->getNestedProperties("statistics.playing-time");
+            $time = (int)Managers::DATABASE()->getNestedUuidData($this->getUniqueId()->toString(), "statistics.playing-time");
             $time += time() - $this->connectionTime;
-            $this->properties->setNestedProperties("statistics.playing-time", (string)$time);
+            Managers::DATABASE()->setNestedUuidData($this->getUniqueId()->toString(), "statistics.playing-time", (string)$time);
         }
     }
 
     public function getKill(): int
     {
-        return $this->properties->getNestedProperties("statistics.kill");
+        return Managers::DATABASE()->getNestedUuidData($this->getUniqueId()->toString(), "statistics.kill", 0);
     }
 
     public function addKill(): void
     {
-        $kill = $this->properties->getNestedProperties("statistics.kill") + 1;
-        $this->properties->setNestedProperties("statistics.kill", $kill);
+        $kill = $this->getKill() + 1;
+        Managers::DATABASE()->setNestedUuidData($this->getUniqueId()->toString(), "statistics.kill", $kill);
     }
 
     public function getDeath(): int
     {
-        return $this->properties->getNestedProperties("statistics.death");
+        return Managers::DATABASE()->getNestedUuidData($this->getUniqueId()->toString(), "statistics.death", 0);
     }
 
     public function addDeath(): void
     {
-        $death = $this->properties->getNestedProperties("statistics.death") + 1;
-        $this->properties->setNestedProperties("statistics.death", $death);
+        $death = $this->getDeath() + 1;
+        Managers::DATABASE()->setNestedUuidData($this->getUniqueId()->toString(), "statistics.death", $death);
     }
 
     public function getKillstreak(): int
     {
-        return $this->properties->getNestedProperties("statistics.killstreak");
+        return Managers::DATABASE()->getNestedUuidData($this->getUniqueId()->toString(), "statistics.killstreak", 0);
     }
 
     public function addKillstreak(): void
     {
-        $death = $this->properties->getNestedProperties("statistics.killstreak") + 1;
-        $this->properties->setNestedProperties("statistics.killstreak", $death);
+        $killstreak = $this->getKillstreak() + 1;
+        Managers::DATABASE()->setNestedUuidData($this->getUniqueId()->toString(), "statistics.killstreak", $killstreak);
     }
 
     public function resetKillstreak(): void
     {
-        $this->properties->setNestedProperties("statistics.killstreak", 0);
+        Managers::DATABASE()->setNestedUuidData($this->getUniqueId()->toString(), "statistics.killstreak", 0);
     }
 
     public function getBestKillstreak(): int
     {
-        return $this->properties->getNestedProperties("statistics.best-killstreak");
+        return Managers::DATABASE()->getNestedUuidData($this->getUniqueId()->toString(), "statistics.best-killstreak", 0);
     }
 
     public function setBestKillstreak(int $killstreak): void
     {
-        $this->properties->setNestedProperties("statistics.best-killstreak", $killstreak);
+        Managers::DATABASE()->setNestedUuidData($this->getUniqueId()->toString(), "statistics.best-killstreak", $killstreak);
     }
 
     public function getMoney(): int
     {
-        return (int)$this->properties->getProperties("money");
+        return (int)Managers::DATABASE()->getUuidData($this->getUniqueId()->toString(), "money", 0);
     }
 
     public function addMoney(int $money): void
     {
-        $this->properties->setProperties("money", (string)($this->getMoney() + $money));
+        Managers::DATABASE()->setUuidData($this->getUniqueId()->toString(), "money", (string)($this->getMoney() + $money));
     }
 
     public function removeMoney(int $money): void
     {
-        $this->properties->setProperties("money", (string)($this->getMoney() - $money));
+        Managers::DATABASE()->setUuidData($this->getUniqueId()->toString(), "money", (string)($this->getMoney() - $money));
     }
 
     public function hasEnoughMoney(int $money): bool

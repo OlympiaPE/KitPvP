@@ -3,6 +3,7 @@
 namespace Olympia\Kitpvp\entities;
 
 use Olympia\Kitpvp\Loader;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\scheduler\ClosureTask;
 
 class SessionCooldowns
@@ -32,7 +33,7 @@ class SessionCooldowns
     public function __construct(Session $player)
     {
         $this->player = $player;
-        $this->cooldownsList = $player->getProperties()->getProperties("cooldowns");
+        $this->cooldownsList = Managers::DATABASE()->getUuidData($player->getUniqueId()->toString(), "cooldowns", []);
     }
 
     public function getCooldown(int $id): int
@@ -64,6 +65,6 @@ class SessionCooldowns
 
     public function saveAllCooldowns(): void
     {
-        $this->player->getProperties()->setProperties("cooldowns", $this->cooldownsList);
+        Managers::DATABASE()->setUuidData($this->player->getUniqueId()->toString(), "cooldowns", $this->cooldownsList);
     }
 }

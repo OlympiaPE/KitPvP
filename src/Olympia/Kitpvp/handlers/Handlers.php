@@ -73,4 +73,16 @@ class Handlers
             }
         }
     }
+
+    /**
+     * @return void
+     */
+    public static function save(): void
+    {
+        foreach (self::getAll() as $handler) {
+            if ($handler instanceof Handler && $handler->isRequireSaveOnDisable()) {
+                $handler->save();
+            }
+        }
+    }
 }

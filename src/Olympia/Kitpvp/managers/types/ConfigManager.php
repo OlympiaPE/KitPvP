@@ -97,7 +97,7 @@ final class ConfigManager extends Manager
             $config->save();
         }catch (Exception $exception) {
 
-            Loader::getInstance()->getLogger()->alert("Erreur lors de la sauvegarde de la config : {$exception->getMessage()}");
+            Loader::getInstance()->getLogger()->alert("§4[Config] Error saving config : {$exception->getMessage()}");
         }
     }
 }

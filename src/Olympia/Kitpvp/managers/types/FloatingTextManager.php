@@ -24,11 +24,6 @@ final class FloatingTextManager extends Manager
         $this->spawnAllFloatingTexts();
     }
 
-    public function onDisable(): void
-    {
-        $this->deleteAllFloatingTexts();
-    }
-
     public function spawnAllFloatingTexts(): void
     {
         $config = Managers::CONFIG()->get("floating-text");
@@ -43,8 +38,8 @@ final class FloatingTextManager extends Manager
             Managers::CONFIG()->getNested("leaderboards.money.title"),
             function (FloatingText $entity) {
 
-                /** @var MoneyManager $this */
-                $moneyData = $this->getPlayersMoneyData();
+                /** @var DatabaseManager $this */
+                $moneyData = $this->getPlayersDataByKey("money", true);
                 arsort($moneyData);
 
                 $nametag = Managers::CONFIG()->getNested("leaderboards.money.title");
@@ -63,7 +58,7 @@ final class FloatingTextManager extends Manager
                 $entity->setNameTag($nametag);
             },
             20*60,
-            Managers::MONEY()
+            Managers::DATABASE()
         );
 
         $this->createFloatingText(
@@ -163,14 +158,6 @@ final class FloatingTextManager extends Manager
         );
     }
 
-    public function deleteAllFloatingTexts(): void
-    {
-        foreach ($this->floatingText as $id => $floatingText) {
-            $floatingText->flagForDespawn();
-            unset($this->floatingText[$id]);
-        }
-    }
-
     public function getLocationByCoordinates($x, $y, $z): Location
     {
         return new Location($x + 0.5, $y + 0.5, $z + 0.5, Server::getInstance()->getWorldManager()->getWorldByName($this->world), 0, 0);
@@ -205,6 +192,11 @@ final class FloatingTextManager extends Manager
             $floatingText->flagForDespawn();
             unset($this->floatingText[$id]);
         }
+    }
+
+    public function resetAllFloatingTexts(): void
+    {
+        $this->floatingText = [];
     }
 
     public function getFloatingTextById(string $id): ?FloatingText

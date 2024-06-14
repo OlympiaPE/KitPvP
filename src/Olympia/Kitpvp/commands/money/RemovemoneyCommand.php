@@ -21,10 +21,7 @@ class RemovemoneyCommand extends OlympiaCommand
     {
         if(count($args) > 1 && is_numeric($args[1]) && !str_contains($args[1], '.')) {
 
-            if(
-                !is_null(Server::getInstance()->getOfflinePlayerData($args[0])) ||
-                Managers::MONEY()->inPlayersMoneyData($args[0])
-            ) {
+            if(Managers::DATABASE()->hasUsernameData($args[0])) {
 
                 $money = intval($args[1]);
 
@@ -36,11 +33,13 @@ class RemovemoneyCommand extends OlympiaCommand
                         $money,
                         Managers::CONFIG()->getNested("messages.lose-money")
                     ));
-                }else{
-                    Managers::MONEY()->removeOfflinePlayerMoney($args[0], $money);
+                }else {
+                    $playerUuid = Managers::DATABASE()->getUuidByUsername($args[0]);
+                    $playerMoney = Managers::DATABASE()->getUuidData($playerUuid, "money");
+                    $totalMoney = $playerMoney - $money;
+                    Managers::DATABASE()->setUuidData($playerUuid, "money", $totalMoney);
                 }
 
-                Managers::MONEY()->updatePlayerMoneyData($args[0]);
                 $sender->sendMessage(str_replace(
                     ["{player}", "{money}"],
                     [$args[0], (string)$money],

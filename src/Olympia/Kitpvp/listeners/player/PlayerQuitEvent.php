@@ -65,5 +65,8 @@ class PlayerQuitEvent implements Listener
             $command = "ban {$player->getName()} 30d Déconnexion freeze";
             $player->getServer()->dispatchCommand($sender, $command);
         }
+
+        $player->getCooldowns()->saveAllCooldowns();
+        Managers::DATABASE()->savePlayersData();
     }
 }

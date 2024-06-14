@@ -2,7 +2,6 @@
 
 namespace Olympia\Kitpvp\handlers\types;
 
-use JsonException;
 use Olympia\Kitpvp\entities\objects\FloatingText;
 use Olympia\Kitpvp\handlers\Handler;
 use Olympia\Kitpvp\koth\Koth;
@@ -10,7 +9,6 @@ use Olympia\Kitpvp\Loader;
 use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\utils\Utils;
 use pocketmine\scheduler\ClosureTask;
-use pocketmine\utils\Config;
 
 final class KothHandler extends Handler
 {
@@ -20,28 +18,22 @@ final class KothHandler extends Handler
 
     public function onLoad(): void
     {
-        $loader = Loader::getInstance();
+        $this->setRequireSaveOnDisable(true);
 
-        Loader::getInstance()->saveResource("koth.yml");
-        $kothData = new Config($loader->getDataFolder() . "koth.yml");
-        if ($kothData->get("started")) {
-            $loader->getScheduler()->scheduleDelayedTask(new ClosureTask(fn() => $this->createKoth()), 20);
+        $kothData = Managers::DATABASE()->getServerData("koth");
+        if ($kothData["started"]) {
+            Loader::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(fn() => $this->createKoth()), 20);
         }else{
-            $this->kothLastCaptureTime = $kothData->get("last-capture-time") ?: time();
+            $this->kothLastCaptureTime = $kothData["last-capture-time"] ?: time();
         }
 
         $this->createKothFloatingText();
     }
 
-    /**
-     * @throws JsonException
-     */
-    public function onDisable(): void
+    public function save(): void
     {
-        $kothData = new Config(Loader::getInstance()->getDataFolder() . "koth.yml", Config::YAML);
-        $kothData->set("started", !is_null($this->koth));
-        $kothData->set("last-capture-time", $this->kothLastCaptureTime);
-        $kothData->save();
+        Managers::DATABASE()->setNestedServerData("koth.started", !is_null($this->koth));
+        Managers::DATABASE()->setNestedServerData("koth.last-capture-time", $this->kothLastCaptureTime);
     }
 
     public function createKoth(): void

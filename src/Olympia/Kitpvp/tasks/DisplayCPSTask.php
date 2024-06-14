@@ -13,7 +13,7 @@ final class DisplayCPSTask extends Task
     {
         /** @var Session $player */
         foreach (Server::getInstance()->getOnlinePlayers() as $player) {
-            if($player->getSettings()['cps']) {
+            if($player->getSettings()['cps'] ?? false) {
                 $cps = Handlers::CPS()->get($player->getName());
                 $player->sendTip("§6CPS : §7$cps");
             }

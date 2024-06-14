@@ -21,6 +21,7 @@ class FloatingText extends Entity
 
     protected function initEntity(CompoundTag $nbt): void
     {
+        $this->setCanSaveWithChunk(false);
         $this->setNameTagVisible();
         $this->setScale(0.0001);
         $this->setNameTagAlwaysVisible();

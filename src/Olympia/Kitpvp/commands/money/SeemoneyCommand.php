@@ -24,8 +24,8 @@ class SeemoneyCommand extends OlympiaCommand
             $player = Server::getInstance()->getPlayerExact($playerName);
 
             if(is_null($player)) {
-                if(Managers::MONEY()->hasOfflinePlayerMoneyData($playerName)) {
-                    $money = Managers::MONEY()->getOfflinePlayerMoney($playerName);
+                if(!is_null($playerUuid = Managers::DATABASE()->getUuidByUsername($playerName))) {
+                    $money = Managers::DATABASE()->getUuidData($playerUuid, "money");
                 }else{
                     $sender->sendMessage(Managers::CONFIG()->getNested("messages.player-not-found"));
                     return;

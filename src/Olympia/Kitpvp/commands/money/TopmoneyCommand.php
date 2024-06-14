@@ -16,7 +16,7 @@ class TopmoneyCommand extends OlympiaCommand
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
         $messages = Managers::CONFIG()->getNested("leaderboards.money");
-        $moneyData = Managers::MONEY()->getPlayersMoneyData();
+        $moneyData = Managers::DATABASE()->getPlayersDataByKey("money", true);
         arsort($moneyData);
 
         $message = $messages["title"];

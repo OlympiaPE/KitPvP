@@ -44,11 +44,12 @@ class Loader extends PluginBase
         $hour = $dt->format("H:i");
         $day = $dt->format("d/m/Y");
         $this->getLogger()->info("§b--> Core chargé à $hour le $day");
-        $this->getLogger()->info("§bLoader développé par RemBog (contacter rembogbe sur discord si il y a un problème)");
+        $this->getLogger()->info("§bCore développé par RemBog (contacter rembogbe sur discord si il y a un problème)");
     }
 
     protected function onDisable(): void
     {
+        Handlers::save();
         Managers::save();
     }
 

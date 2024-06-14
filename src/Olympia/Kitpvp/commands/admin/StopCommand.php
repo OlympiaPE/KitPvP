@@ -3,8 +3,8 @@
 namespace Olympia\Kitpvp\commands\admin;
 
 use Olympia\Kitpvp\commands\OlympiaCommand;
-use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\Loader;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\command\CommandSender;
 use pocketmine\permission\DefaultPermissionNames;
 use pocketmine\scheduler\ClosureTask;

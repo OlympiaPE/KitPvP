@@ -7,8 +7,8 @@ use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\transaction\InvMenuTransaction;
 use muqsit\invmenu\transaction\InvMenuTransactionResult;
 use muqsit\invmenu\type\InvMenuTypeIds;
-use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\entities\Session;
+use Olympia\Kitpvp\managers\Managers;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 use pocketmine\player\Player;
@@ -59,8 +59,10 @@ class HdvGui
                                         /** @var Session $seller */
                                         $seller->addMoney($price);
                                         $seller->sendMessage(Managers::CONFIG()->getNested("messages.hdv-item-sell"));
-                                    }else{
-                                        Managers::MONEY()->addOfflinePlayerMoney($sellerName, $price);
+                                    }elseif(!is_null($playerUuid = Managers::DATABASE()->getUuidByUsername($sellerName))) {
+                                        $playerMoney = Managers::DATABASE()->getUuidData($playerUuid, "money");
+                                        $totalMoney = $playerMoney + $price;
+                                        Managers::DATABASE()->setUuidData($playerUuid, "money", $totalMoney);
                                     }
 
                                     $player->removeMoney($price);

@@ -15,10 +15,10 @@ class PlayerPreLoginEvent implements Listener
     public function onPreLogin(Event $event): void
     {
         $playerInfo = $event->getPlayerInfo();
+        $uuid = $playerInfo->getUuid()->toString();
 
-        if (!Managers::DATABASE()->hasUuidData($playerInfo->getUuid()->getBytes())) {
-
-            Managers::DATABASE()->createUuidData($playerInfo->getUuid());
+        if (!Managers::DATABASE()->hasUuidData($uuid)) {
+            Managers::DATABASE()->createUuidData($uuid, $playerInfo->getUsername());
         }
 
         if(
