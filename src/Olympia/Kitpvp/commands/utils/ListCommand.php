@@ -29,7 +29,7 @@ class ListCommand extends OlympiaCommand
 
             $sender->sendMessage(str_replace(
                 ["{playersCount}", "{playersNames}"],
-                [$playersCount, $playerNames],
+                [$playersCount, implode(", ", $playerNames)],
                 Managers::CONFIG()->getNested("messages.list")
             ));
         }else{
