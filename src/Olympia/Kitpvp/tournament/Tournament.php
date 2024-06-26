@@ -7,7 +7,7 @@ use Olympia\Kitpvp\Loader;
 use Olympia\Kitpvp\managers\Managers;
 use Olympia\Kitpvp\managers\types\BoxsManager;
 use Olympia\Kitpvp\managers\types\TournamentManager;
-use Olympia\Kitpvp\managers\types\Utils;
+use Olympia\Kitpvp\utils\Utils;
 use pocketmine\entity\effect\EffectInstance;
 use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\item\VanillaItems;
@@ -207,7 +207,7 @@ final class Tournament
         );
 
         $scheduler = Loader::getInstance()->getScheduler();
-        /** @var \Olympia\Kitpvp\entities\Session $fighter1 */
+        /** @var Session $fighter1 */
         $fighter1 = Server::getInstance()->getPlayerExact($fighters[0]);
         /** @var Session $fighter2 */
         $fighter2 = Server::getInstance()->getPlayerExact($fighters[1]);
@@ -294,7 +294,7 @@ final class Tournament
     }
 
     /**
-     * @return \Olympia\Kitpvp\entities\Session[]
+     * @return Session[]
      */
     public function getNextFighters(): array
     {
@@ -385,7 +385,7 @@ final class Tournament
     }
 
     /**
-     * @return \Olympia\Kitpvp\entities\Session[]
+     * @return Session[]
      */
     public function getPlayers(bool $includeEliminated = false): array
     {
@@ -461,7 +461,7 @@ final class Tournament
     }
 
     /**
-     * @param \Olympia\Kitpvp\entities\Session[] $players
+     * @param Session[] $players
      * @param string $message
      * @return void
      */
@@ -473,7 +473,7 @@ final class Tournament
     }
 
     /**
-     * @param \Olympia\Kitpvp\entities\Session[] $players
+     * @param Session[] $players
      * @param string $title
      * @param string $subTitle
      * @param int $stay
@@ -487,7 +487,7 @@ final class Tournament
     }
 
     /**
-     * @param \Olympia\Kitpvp\entities\Session[] $players
+     * @param Session[] $players
      * @param Sound $sound
      * @return void
      */
